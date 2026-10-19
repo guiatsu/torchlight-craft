@@ -1,0 +1,31 @@
+{
+  "sources": [
+    {
+      "id": "tlidb-cane",
+      "name": "TLIDB — Cane",
+      "url": "https://tlidb.com/en/Cane",
+      "consulted_on": "2026-10-19",
+      "season": null,
+      "data_status": "community_reference_season_unverified",
+      "notes": "Fan-made community wiki. The page says its data is based on beta testing and is not the final official release. Current entries have not been confirmed for SS14 — Tartarus."
+    },
+    {
+      "id": "tlidb-ring",
+      "name": "TLIDB — Ring",
+      "url": "https://tlidb.com/en/Ring",
+      "consulted_on": "2026-10-19",
+      "season": null,
+      "data_status": "community_reference_season_unverified",
+      "notes": "Fan-made community wiki. The page says its data is based on beta testing and is not the final official release. Current entries have not been confirmed for SS14 — Tartarus."
+    },
+    {
+      "id": "user-screenshot",
+      "name": "User supplied crafting screenshot",
+      "url": null,
+      "consulted_on": null,
+      "season": null,
+      "data_status": "visual_example_only",
+      "notes": "Used only to reproduce the general layout and the visible three-prefix/three-suffix slot count for the matching cane example. This is not independent confirmation of a game rule."
+    }
+  ]
+}

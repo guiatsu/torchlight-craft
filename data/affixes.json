@@ -1,0 +1,114 @@
+{
+  "catalog_version": 1,
+  "season_reference": "SS14 — Tartarus (not verified)",
+  "affixes": [
+    {
+      "id": "cane-physical-damage-prefix",
+      "name": "Adds Physical Damage to the gear",
+      "group": "prefix",
+      "category": "Basic",
+      "base_ids": ["sleeping-sages-cane", "blue-amber-cane"],
+      "value_editable": true,
+      "source_id": "tlidb-cane",
+      "verification_status": "community_reference_season_unverified",
+      "compatibility_status": "provisional",
+      "tiers": [
+        {"id": "T1", "item_level_required": 86, "value_range": "Adds (36–38) - (44–46) Physical Damage to the gear"},
+        {"id": "T2", "item_level_required": 82, "value_range": "Adds (21–23) - (25–27) Physical Damage to the gear"},
+        {"id": "T3", "item_level_required": 76, "value_range": "Adds (13–15) - (17–19) Physical Damage to the gear"}
+      ]
+    },
+    {
+      "id": "cane-fire-damage-prefix",
+      "name": "Adds Fire Damage to the gear",
+      "group": "prefix",
+      "category": "Basic",
+      "base_ids": ["sleeping-sages-cane", "blue-amber-cane"],
+      "value_editable": true,
+      "source_id": "tlidb-cane",
+      "verification_status": "community_reference_season_unverified",
+      "compatibility_status": "provisional",
+      "tiers": [
+        {"id": "T1", "item_level_required": 86, "value_range": "Adds (123–125) - (160–169) Fire Damage to the gear"},
+        {"id": "T2", "item_level_required": 82, "value_range": "Adds (47–49) - (62–67) Fire Damage to the gear"}
+      ]
+    },
+    {
+      "id": "cane-attack-speed-suffix",
+      "name": "Gear Attack Speed",
+      "group": "suffix",
+      "category": "Basic",
+      "base_ids": ["sleeping-sages-cane", "blue-amber-cane"],
+      "value_editable": true,
+      "source_id": "tlidb-cane",
+      "verification_status": "community_reference_season_unverified",
+      "compatibility_status": "provisional",
+      "tiers": [
+        {"id": "T1", "item_level_required": 86, "value_range": "+(23–32)% gear Attack Speed"},
+        {"id": "T2", "item_level_required": 82, "value_range": "+(19–22)% gear Attack Speed"},
+        {"id": "T3", "item_level_required": 76, "value_range": "+(14–16)% gear Attack Speed"}
+      ]
+    },
+    {
+      "id": "cane-critical-damage-suffix",
+      "name": "Critical Strike Damage",
+      "group": "suffix",
+      "category": "Advanced",
+      "base_ids": ["sleeping-sages-cane", "blue-amber-cane"],
+      "value_editable": true,
+      "source_id": "tlidb-cane",
+      "verification_status": "community_reference_season_unverified",
+      "compatibility_status": "provisional",
+      "tiers": [
+        {"id": "T1", "item_level_required": 86, "value_range": "+(64–90)% Critical Strike Damage"},
+        {"id": "T2", "item_level_required": 82, "value_range": "+(46–63)% Critical Strike Damage"},
+        {"id": "T3", "item_level_required": 76, "value_range": "+(37–45)% Critical Strike Damage"}
+      ]
+    },
+    {
+      "id": "cane-double-damage-suffix",
+      "name": "Chance to deal Double Damage",
+      "group": "suffix",
+      "category": "Ultimate",
+      "base_ids": ["sleeping-sages-cane", "blue-amber-cane"],
+      "value_editable": true,
+      "source_id": "tlidb-cane",
+      "verification_status": "community_reference_season_unverified",
+      "compatibility_status": "provisional",
+      "tiers": [
+        {"id": "T1", "item_level_required": 100, "value_range": "+(29–40)% chance to deal Double Damage"},
+        {"id": "T2", "item_level_required": 100, "value_range": "+(21–28)% chance to deal Double Damage"}
+      ]
+    },
+    {
+      "id": "ring-fire-resistance-suffix",
+      "name": "Fire Resistance",
+      "group": "suffix",
+      "category": "Basic",
+      "base_ids": ["ring"],
+      "value_editable": true,
+      "source_id": "tlidb-ring",
+      "verification_status": "community_reference_season_unverified",
+      "compatibility_status": "provisional",
+      "tiers": [
+        {"id": "T1", "item_level_required": 86, "value_range": "+(19–27)% Fire Resistance"},
+        {"id": "T2", "item_level_required": 82, "value_range": "+(16–19)% Fire Resistance"}
+      ]
+    },
+    {
+      "id": "ring-fire-damage-advanced-prefix",
+      "name": "Adds Fire Damage to Attacks and Spells",
+      "group": "prefix",
+      "category": "Advanced",
+      "base_ids": ["ring"],
+      "value_editable": true,
+      "source_id": "tlidb-ring",
+      "verification_status": "community_reference_season_unverified",
+      "compatibility_status": "provisional",
+      "tiers": [
+        {"id": "T1", "item_level_required": 86, "value_range": "Adds (42–44) - (54–59) Fire Damage to Attacks and Spells"},
+        {"id": "T2", "item_level_required": 82, "value_range": "Adds (25–27) - (32–36) Fire Damage to Attacks and Spells"}
+      ]
+    }
+  ]
+}

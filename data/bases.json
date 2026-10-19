@@ -1,0 +1,54 @@
+{
+  "catalog_version": 1,
+  "season_reference": "SS14 — Tartarus (not verified)",
+  "bases": [
+    {
+      "id": "sleeping-sages-cane",
+      "name": "Sleeping Sage's Cane",
+      "category": "Weapons",
+      "subcategory": "Cane",
+      "equipment_type": "One-handed weapon",
+      "hands": 1,
+      "character_level_requirement": 86,
+      "minimum_item_level": null,
+      "prefix_limit": 3,
+      "suffix_limit": 3,
+      "limit_status": "visual_example_only",
+      "restrictions": ["Slot counts mirror the supplied screenshot and are not verified for SS14."],
+      "source_id": "tlidb-cane",
+      "verification_status": "community_reference_season_unverified"
+    },
+    {
+      "id": "blue-amber-cane",
+      "name": "Blue Amber Cane",
+      "category": "Weapons",
+      "subcategory": "Cane",
+      "equipment_type": "One-handed weapon",
+      "hands": 1,
+      "character_level_requirement": 82,
+      "minimum_item_level": null,
+      "prefix_limit": null,
+      "suffix_limit": null,
+      "limit_status": "unknown",
+      "restrictions": [],
+      "source_id": "tlidb-cane",
+      "verification_status": "community_reference_season_unverified"
+    },
+    {
+      "id": "ring",
+      "name": "Ring",
+      "category": "Accessories",
+      "subcategory": "Ring",
+      "equipment_type": "Ring",
+      "hands": null,
+      "character_level_requirement": null,
+      "minimum_item_level": null,
+      "prefix_limit": null,
+      "suffix_limit": null,
+      "limit_status": "unknown",
+      "restrictions": ["Generic slot entry; a specific ring base is not selected."],
+      "source_id": "tlidb-ring",
+      "verification_status": "community_reference_season_unverified"
+    }
+  ]
+}
