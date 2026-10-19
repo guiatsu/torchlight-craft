@@ -526,8 +526,14 @@ def write_catalog_database(
             foreign_key_errors = connection.execute("PRAGMA foreign_key_check").fetchall()
             if foreign_key_errors:
                 raise sqlite3.IntegrityError(f"SQLite has foreign key errors: {foreign_key_errors[:10]}")
+        # sqlite3.Connection's context manager commits or rolls back, but it
+        # does not close the underlying file handle. Windows cannot replace
+        # the temporary database while that handle remains open.
+        connection.close()
         temporary.replace(destination)
         return counts
     except Exception:
+        if "connection" in locals():
+            connection.close()
         temporary.unlink(missing_ok=True)
         raise
