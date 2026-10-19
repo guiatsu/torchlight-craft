@@ -23,6 +23,26 @@ data = ["*.json"]
 testpaths = ["tests"]
 addopts = "-q"
 
+[tool.pyside6-project]
+files = [
+    "main.py",
+    "core/__init__.py",
+    "core/catalog.py",
+    "core/controller.py",
+    "core/models.py",
+    "core/serialization.py",
+    "core/validation.py",
+    "services/__init__.py",
+    "services/item_repository.py",
+    "data/__init__.py",
+    "ui/Main.qml",
+    "ui/ItemEditor.qml",
+    "ui/components/AffixSelector.qml",
+    "ui/components/AffixRow.qml",
+    "ui/components/BaseSelector.qml",
+    "ui/components/TierBadge.qml",
+]
+
 [tool.pyside6.deploy]
 title = "Torchlight Craft Planner"
 input_file = "main.py"
