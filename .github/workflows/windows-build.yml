@@ -25,19 +25,20 @@ jobs:
       - name: Install project dependencies
         shell: pwsh
         run: |
-          py -3.12 -m venv .venv
-          .\.venv\Scripts\python.exe -m pip install --upgrade pip
-          .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+          New-Item -ItemType Directory -Force -Path build | Out-Null
+          py -3.12 -m venv build\.venv
+          .\build\.venv\Scripts\python.exe -m pip install --upgrade pip
+          .\build\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 
       - name: Run tests
         shell: pwsh
-        run: .\.venv\Scripts\python.exe -m pytest
+        run: .\build\.venv\Scripts\python.exe -m pytest
 
       - name: Build standalone application
         shell: pwsh
         run: |
-          $env:PATH = "$(Resolve-Path '.venv\Scripts');$env:PATH"
-          .\.venv\Scripts\pyside6-deploy.exe --mode standalone --force
+          $env:PATH = "$(Resolve-Path 'build\.venv\Scripts');$env:PATH"
+          .\build\.venv\Scripts\pyside6-deploy.exe --mode standalone --force
 
       - name: Verify and archive executable
         shell: pwsh
