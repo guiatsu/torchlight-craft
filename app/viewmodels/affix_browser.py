@@ -47,6 +47,12 @@ class AffixBrowserViewModel(QObject):
             "id": tier.id,
             "valueRange": tier.value_range,
             "itemLevelRequired": tier.item_level_required,
+            "itemLevelRequiredRaw": tier.requirement_level_raw,
+            "weightRaw": tier.weight_raw,
+            "weightParseStatus": tier.weight_parse_status,
+            "sourceSection": tier.source_section,
+            "sourceTable": tier.source_table,
+            "sourceUrl": tier.source_url,
             "eligible": eligible,
             "label": f"{tier.id} · {tier.value_range}",
             "sortIndex": index,
@@ -61,6 +67,9 @@ class AffixBrowserViewModel(QObject):
             "compatibilityStatus": definition.compatibility_status,
             "verificationStatus": definition.verification_status,
             "tierSummary": " · ".join(tier.id for tier in definition.tiers),
+            "craftingSystemId": definition.crafting_system_id,
+            "sourceSection": definition.source_section,
+            "familyGroupingStatus": definition.family_grouping_status,
             "alreadyAdded": self._definition_is_on_item(definition.id, self.browser.instance_id),
         }
 
@@ -113,6 +122,21 @@ class AffixBrowserViewModel(QObject):
         tier = self.browser.selected_tier()
         return bool(tier and (tier.item_level_required is None or self.editor.item.item_level >= tier.item_level_required))
 
+    @Property(str, notify=selectionChanged)
+    def selectedTierTechnicalText(self) -> str:
+        tier = self.browser.selected_tier()
+        if tier is None:
+            return ""
+        level = f"Requires Item Level {tier.item_level_required}" if tier.item_level_required is not None else "Item Level requirement not listed"
+        weight = f"Published weight {tier.weight_raw}" if tier.weight_raw is not None else "Weight not listed"
+        source = tier.source_section or tier.source_table or "TLIDB source"
+        return f"{level} · {weight} · {source} · weight is source data, not a probability"
+
+    @Property(str, notify=selectionChanged)
+    def selectedTierSourceUrl(self) -> str:
+        tier = self.browser.selected_tier()
+        return tier.source_url if tier else ""
+
     @Property(bool, notify=selectionChanged)
     def selectedValueEditable(self) -> bool:
         return bool(self.browser.definition and self.browser.definition.value_editable)
@@ -141,7 +165,10 @@ class AffixBrowserViewModel(QObject):
     def selectionVerificationText(self) -> str:
         if not self.browser.definition:
             return "Choose an affix from the local catalog."
-        return "Community reference · compatibility provisional · SS14 unverified"
+        definition = self.browser.definition
+        if definition and definition.family_grouping_status != "source_family_id":
+            return "Community reference · family grouping pending · SS14 unverified"
+        return "Community reference · SS14 unverified"
 
     @Property(str, notify=selectionChanged)
     def searchQuery(self) -> str:

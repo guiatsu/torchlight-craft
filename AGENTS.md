@@ -5,10 +5,10 @@
 ## Produto e escopo vigente
 
 - Projeto: **Torchlight Craft Planner**, aplicativo desktop Windows para edição de equipamentos de Torchlight: Infinite.
-- Stack: **Python 3.12+, PySide6, Qt Quick/QML, dataclasses e JSON local**. Build Windows com `pyside6-deploy`/Nuitka.
-- **Marco atual: v0.1.1 — refatoração incremental e refinamento visual do editor.** Não adicionar crafting aleatório, probabilidade, custos, otimização, OCR, integração com o jogo ou serviços externos nesta etapa.
+- Stack: **Python 3.12+, PySide6, Qt Quick/QML, dataclasses, catálogo local SQLite e biblioteca JSON local**. Build Windows com `pyside6-deploy`/Nuitka.
+- **Marco atual: v0.2.0 — importação exaustiva e auditável do catálogo comunitário TLIDB, com busca integrada ao editor.** Não adicionar crafting aleatório, probabilidade, custos, otimização, OCR, integração com o jogo ou atualização remota automática.
 - A tela de crafting do jogo é referência de **composição e fluxo visual**, não apenas de paleta. O app continua sendo um *editor*, não uma réplica funcional do crafting nesta versão.
-- O catálogo inicial é pequeno e os dados comunitários **não estão confirmados para SS14**. Nunca apresente regras estimadas como oficiais.
+- A captura do catálogo de 2026-10-19 contém 49 categorias, 2.194 bases, 642 famílias de afixos, 13.303 tiers e 831 registros de outras tabelas. Os dados comunitários **não estão confirmados para SS14**. A auditoria está parcial; nunca apresente regras estimadas como oficiais.
 
 ## Estado do repositório na criação deste arquivo (2026-10-19)
 
@@ -16,11 +16,11 @@
 - `core/models.py` concentra entidades de equipamento, base, afixo, tier e enums.
 - `ui/Main.qml`, `ui/ItemEditor.qml` e `ui/components/AffixSelector.qml` contêm layout e estilos muito grandes.
 - `services/item_repository.py` mantém a biblioteca em JSON com `schema_version=1`, gravação atômica e backup `.bak`.
-- `data/{bases,affixes,sources}.json` forma o catálogo local com procedência dos dados.
+- `data/{bases,affixes,sources}.json` mantém os dados legados usados como compatibilidade; `data/catalog.sqlite3` é o catálogo normalizado da v0.2.
 - O CI Windows já compilou com Nuitka, mas a execução empacotada falhou no smoke test (`--smoke-test`). **Não remover nem ignorar essa verificação para obter CI verde.**
 - Consulte sempre a branch/commit atual; estes fatos são um diagnóstico inicial, não substituem reavaliação.
 
-## Atualização da implementação v0.1.1
+## Atualização da implementação v0.2.0
 
 - A composição Qt está em `app/controller.py`; `core/controller.py` permanece apenas como import de compatibilidade.
 - `app/viewmodels/` contém os view-models do equipamento, navegação de afixos e biblioteca. Eles compartilham um único `ItemEditorService` e uma única sessão mutável.
@@ -30,6 +30,11 @@
 - Incompatibilidades resultantes de troca de base são mantidas, listadas e bloqueiam salvar. A interface oferece substituição individual ou remoção em lote com confirmação.
 - O workflow Windows usa `tools/stage_windows_runtime.ps1` e captura o código de saída com `Start-Process -Wait -PassThru`. O executável grava falhas de inicialização em `%TEMP%\TorchlightCraftPlanner-startup.log`; o smoke test continua obrigatório.
 - A validação offscreen confirma inicialização QML, mas não substitui revisão visual no Windows.
+- `data/catalog.sqlite3` é o catálogo local normalizado (schema v2); a biblioteca de equipamentos do usuário continua em JSON `schema_version=1`. O app não consulta a rede na inicialização.
+- `tools/tlidb/` descobre categorias dinamicamente, respeita `robots.txt`, usa cache com hash e requisições serializadas, importa offline, valida e compara snapshots. Não mova o importador para o caminho de inicialização do aplicativo.
+- Os relatórios em `reports/` registram descoberta, retenção, erros, campos ausentes e validação. A captura atual reteve 100% dos registros encontrados, mas 1.219 classificações e 50 campos continuam sem confirmação suficiente; status geral `partial` é intencional.
+- Base ou afixo sem classificação conhecida permanece pesquisável e rotulado, mas não entra silenciosamente na seleção de craft padrão. Não inferir `non_craftable` a partir de ausência de dados.
+- Correções manuais verificadas devem ficar em uma camada explícita com proveniência; antes de reaplicar uma captura, detectar e reportar conflitos. Nunca editar o SQLite gerado como única cópia de uma correção.
 
 ## Princípios obrigatórios
 
@@ -40,9 +45,10 @@
 5. **Controllers não viram arquivos-depósito.** Não acrescentar novas funcionalidades ao controller monolítico; extrair por responsabilidades e manter apenas a ponte de apresentação necessária.
 6. **Sem arquitetura excessiva.** Não introduzir DI frameworks, mediators, microserviços, backend web, banco remoto ou abstrações genéricas sem uso real.
 7. **Compatibilidade de dados primeiro.** Preservar itens salvos, IDs existentes, comportamento de backups e esquema v1; qualquer migração futura precisa ser explícita, testada e recuperável.
-8. **Dados auditáveis.** Todo dado de jogo não óbvio deve possuir origem e status de verificação. Não fabricar pesos, tiers, conflitos ou limites de slots.
-9. **Sem assets não autorizados.** Usar os vetores originais do projeto ou assets com licença adequada; a imagem do jogo serve como referência visual.
-10. **Não mascarar falhas.** Não suprimir exceções, testes, warnings do QML, erros de build nem marcar tarefas como verificadas sem execução real.
+8. **Dados auditáveis.** Todo dado de jogo não óbvio deve possuir origem, hash/ref de origem quando disponível e status de verificação. Preservar pesos exatos, inclusive zero; não transformá-los em probabilidades nem fabricar pesos, tiers, conflitos, requisitos ou limites de slots.
+9. **Importação exaustiva e retenção.** Comparar páginas descobertas com inventário de controle, nunca omitir categorias/tabelas silenciosamente e manter registros desconhecidos em relatórios ou armazenamento bruto. Retenção de registro não equivale a cobertura de regras.
+10. **Sem assets não autorizados.** Usar os vetores originais do projeto ou assets com licença adequada; a imagem do jogo serve como referência visual.
+11. **Não mascarar falhas.** Não suprimir exceções, testes, warnings do QML, erros de build nem marcar tarefas como verificadas sem execução real.
 
 ## Organização-alvo (guia, não licença para reescrever tudo)
 
@@ -73,6 +79,9 @@ ui/
   theme/                    # tokens centralizados de cor, texto e espaçamento
 assets/                     # ícones/arte própria
 data/                       # bases/afixos/fontes com proveniência
+  catalog.sqlite3           # catálogo TLIDB normalizado, schema v2
+tools/tlidb/                # descoberta, importação, validação e diff offline
+reports/                    # cobertura, unresolved, errors e validação da captura
 tests/                      # testes de domínio, integração e smoke
 .github/workflows/          # CI Windows e validação de build
 ```
@@ -82,15 +91,17 @@ Esta é uma **direção arquitetural**. Preserve imports públicos onde possíve
 ## Responsabilidades e limites
 
 - **`core/models/`**: tipos e invariantes das entidades. Um módulo para equipamento/instância e outro para catálogo (bases, definições e tiers). Tipos de domínio não armazenam sinais Qt.
-- **`core/catalog.py`**: carrega JSON; valida IDs únicos, referências e formatos, sem conhecimento de widgets.
+- **`core/catalog.py`**: carrega o SQLite local e adaptadores JSON legados; valida referências e formatos sem conhecimento de widgets.
 - **`core/validation.py`**: erros tipados ou mensagens claras, sem notificações visuais nem efeitos colaterais.
 - **`services/`**: editar item, trocar base, incluir/substituir/remover afixo, persistir e gerenciar biblioteca; funções e serviços testáveis sem QML.
 - **`app/`**: integração Qt, propriedades/sinais/slots, seleção e transformação de dados para a apresentação. Preferir controladores pequenos e específicos a uma classe que manipule tudo.
 - **`ui/`**: componentes pequenos, slots visuais explicitamente desenhados, estados de foco/seleção/desabilitado, layouts e tokens centralizados. Não copiar regras de tier ou nível para QML.
-- **`data/`**: apenas dados de jogo com proveniência e status; alterar o catálogo não deve exigir modificar QML.
-- **`tests/`**: testes orientados a comportamento, incluindo regressões das operações de biblioteca e alterações de base/tier.
+- **`data/`**: catálogo SQLite normalizado e dados legados com proveniência e status; alterar o catálogo não deve exigir modificar QML. Catálogo de jogo e biblioteca pessoal permanecem separados.
+- **`tools/tlidb/`**: ferramenta de desenvolvimento, nunca chamada no startup; descoberta dinâmica, cache, importador, validação, relatório e diff. Não contornar `robots.txt`, limites de requisição ou hashes de origem.
+- **`reports/`**: evidência da captura. Conservar classificações unknown, fontes sem campos e divergências; partial não deve ser convertido em sucesso completo.
+- **`tests/`**: testes de comportamento e regressão do editor, biblioteca, importação, parsers, armazenamento e compatibilidade do catálogo.
 
-## Trabalho visual: critérios concretos da v0.1.1
+## Trabalho visual: critérios do editor
 
 A referência principal é a **screenshot de crafting do Torchlight: Infinite fornecida pelo usuário**. Se não estiver disponível no contexto do agente, solicite o arquivo antes de afirmar fidelidade visual; siga estas regras enquanto isso:
 
@@ -158,7 +169,7 @@ CI: testes Python + inicialização QML + build Nuitka + smoke do executável em
 
 ## Condutas proibidas
 
-- Não adicionar funcionalidades v0.2+ neste ciclo.
+- Manter o escopo atual focado em edição e catálogo offline; não acrescentar crafting, simulação ou atualização automática remota.
 - Não trocar PySide6/QML por outra stack sem decisão explícita.
 - Não apagar dados locais, zerar bibliotecas, alterar esquema v1 silenciosamente ou forçar exclusão de afixos existentes.
 - Não inventar dados do jogo, probabilidades ou licenças de assets.

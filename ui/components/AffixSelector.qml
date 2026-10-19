@@ -186,7 +186,7 @@ Rectangle {
                         }
                         Text {
                             Layout.fillWidth: true
-                            text: modelData.alreadyAdded ? "Already on this equipment" : "Compatibility provisional"
+                            text: modelData.alreadyAdded ? "Already on this equipment" : "Standard crafting pool · community reference"
                             color: modelData.alreadyAdded ? Theme.warning : Theme.textMuted
                             font.pixelSize: 10
                         }
@@ -272,6 +272,27 @@ Rectangle {
                 wrapMode: Text.WordWrap
                 maximumLineCount: 2
                 elide: Text.ElideRight
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 7
+                Text {
+                    Layout.fillWidth: true
+                    text: root.browser.selectedTierTechnicalText
+                    color: Theme.textMuted
+                    font.pixelSize: 9
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                }
+                Button {
+                    visible: root.browser.selectedTierSourceUrl.length > 0
+                    text: "Source"
+                    onClicked: Qt.openUrlExternally(root.browser.selectedTierSourceUrl)
+                    background: Rectangle { radius: Theme.radiusSmall; color: Theme.surfaceInset; border.color: Theme.borderSoft }
+                    contentItem: Text { text: parent.text; color: Theme.accent; font.pixelSize: 9; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                }
             }
 
             RowLayout {

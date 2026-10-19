@@ -22,6 +22,16 @@ class BaseDefinition:
     restrictions: tuple[str, ...] = ()
     source_id: str = ""
     verification_status: str = "community_reference_season_unverified"
+    crafting_class: str = "unknown"
+    record_kind: str = "base"
+    classification_evidence: str = ""
+    source_url: str = ""
+    source_section: str = ""
+    source_item_id: str = ""
+    base_properties: tuple[str, ...] = ()
+    fields_missing: tuple[str, ...] = ()
+    editor_supported: bool = False
+    is_legacy_alias: bool = False
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "BaseDefinition":
@@ -54,4 +64,14 @@ class BaseDefinition:
             verification_status=str(
                 data.get("verification_status", "community_reference_season_unverified")
             ),
+            crafting_class=str(data.get("crafting_class", "unknown")),
+            record_kind=str(data.get("record_kind", "base")),
+            classification_evidence=str(data.get("classification_evidence", "")),
+            source_url=str(data.get("source_url", "")),
+            source_section=str(data.get("source_section", "")),
+            source_item_id=str(data.get("source_item_id", "")),
+            base_properties=tuple(str(value) for value in data.get("base_properties", [])),
+            fields_missing=tuple(str(value) for value in data.get("fields_missing", [])),
+            editor_supported=bool(data.get("editor_supported", False)),
+            is_legacy_alias=bool(data.get("is_legacy_alias", False)),
         )

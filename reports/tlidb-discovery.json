@@ -1,0 +1,459 @@
+{
+  "categories": [
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-claw",
+      "name": "Claw",
+      "source_category_id": "10501",
+      "source_href": "Claw",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Claw"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-dagger",
+      "name": "Dagger",
+      "source_category_id": "10502",
+      "source_href": "Dagger",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Dagger"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-one-handed-sword",
+      "name": "One-Handed Sword",
+      "source_category_id": "10503",
+      "source_href": "One-Handed_Sword",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/One-Handed_Sword"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-one-handed-hammer",
+      "name": "One-Handed Hammer",
+      "source_category_id": "10504",
+      "source_href": "One-Handed_Hammer",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/One-Handed_Hammer"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-one-handed-axe",
+      "name": "One-Handed Axe",
+      "source_category_id": "10505",
+      "source_href": "One-Handed_Axe",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/One-Handed_Axe"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-wand",
+      "name": "Wand",
+      "source_category_id": "10509",
+      "source_href": "Wand",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Wand"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-rod",
+      "name": "Rod",
+      "source_category_id": "10510",
+      "source_href": "Rod",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Rod"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-scepter",
+      "name": "Scepter",
+      "source_category_id": "10511",
+      "source_href": "Scepter",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Scepter"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-cane",
+      "name": "Cane",
+      "source_category_id": "10512",
+      "source_href": "Cane",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Cane"
+    },
+    {
+      "group_label": "One-handed",
+      "id": "tlidb-category-pistol",
+      "name": "Pistol",
+      "source_category_id": "10515",
+      "source_href": "Pistol",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Pistol"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-two-handed-sword",
+      "name": "Two-Handed Sword",
+      "source_category_id": "10506",
+      "source_href": "Two-Handed_Sword",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Two-Handed_Sword"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-two-handed-hammer",
+      "name": "Two-Handed Hammer",
+      "source_category_id": "10507",
+      "source_href": "Two-Handed_Hammer",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Two-Handed_Hammer"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-two-handed-axe",
+      "name": "Two-Handed Axe",
+      "source_category_id": "10508",
+      "source_href": "Two-Handed_Axe",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Two-Handed_Axe"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-tin-staff",
+      "name": "Tin Staff",
+      "source_category_id": "10513",
+      "source_href": "Tin_Staff",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Tin_Staff"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-cudgel",
+      "name": "Cudgel",
+      "source_category_id": "10514",
+      "source_href": "Cudgel",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Cudgel"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-bow",
+      "name": "Bow",
+      "source_category_id": "10516",
+      "source_href": "Bow",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Bow"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-crossbow",
+      "name": "Crossbow",
+      "source_category_id": "10517",
+      "source_href": "Crossbow",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Crossbow"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-musket",
+      "name": "Musket",
+      "source_category_id": "10518",
+      "source_href": "Musket",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Musket"
+    },
+    {
+      "group_label": "Two-handed",
+      "id": "tlidb-category-fire-cannon",
+      "name": "Fire Cannon",
+      "source_category_id": "10519",
+      "source_href": "Fire_Cannon",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Fire_Cannon"
+    },
+    {
+      "group_label": "Helmet",
+      "id": "tlidb-category-str-helmet",
+      "name": "STR Helmet",
+      "source_category_id": "10101",
+      "source_href": "STR_Helmet",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/STR_Helmet"
+    },
+    {
+      "group_label": "Helmet",
+      "id": "tlidb-category-dex-helmet",
+      "name": "DEX Helmet",
+      "source_category_id": "10102",
+      "source_href": "DEX_Helmet",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/DEX_Helmet"
+    },
+    {
+      "group_label": "Helmet",
+      "id": "tlidb-category-int-helmet",
+      "name": "INT Helmet",
+      "source_category_id": "10103",
+      "source_href": "INT_Helmet",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/INT_Helmet"
+    },
+    {
+      "group_label": "Helmet",
+      "id": "tlidb-category-vorax-limb-head",
+      "name": "Vorax Limb: Head",
+      "source_category_id": "110101",
+      "source_href": "Vorax_Limb_Head",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Limb_Head"
+    },
+    {
+      "group_label": "Chest Armor",
+      "id": "tlidb-category-str-chest-armor",
+      "name": "STR Chest Armor",
+      "source_category_id": "10201",
+      "source_href": "STR_Chest_Armor",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/STR_Chest_Armor"
+    },
+    {
+      "group_label": "Chest Armor",
+      "id": "tlidb-category-dex-chest-armor",
+      "name": "DEX Chest Armor",
+      "source_category_id": "10202",
+      "source_href": "DEX_Chest_Armor",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/DEX_Chest_Armor"
+    },
+    {
+      "group_label": "Chest Armor",
+      "id": "tlidb-category-int-chest-armor",
+      "name": "INT Chest Armor",
+      "source_category_id": "10203",
+      "source_href": "INT_Chest_Armor",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/INT_Chest_Armor"
+    },
+    {
+      "group_label": "Chest Armor",
+      "id": "tlidb-category-vorax-limb-chest",
+      "name": "Vorax Limb: Chest",
+      "source_category_id": "110201",
+      "source_href": "Vorax_Limb_Chest",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Limb_Chest"
+    },
+    {
+      "group_label": "Gloves",
+      "id": "tlidb-category-str-gloves",
+      "name": "STR Gloves",
+      "source_category_id": "10301",
+      "source_href": "STR_Gloves",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/STR_Gloves"
+    },
+    {
+      "group_label": "Gloves",
+      "id": "tlidb-category-dex-gloves",
+      "name": "DEX Gloves",
+      "source_category_id": "10302",
+      "source_href": "DEX_Gloves",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/DEX_Gloves"
+    },
+    {
+      "group_label": "Gloves",
+      "id": "tlidb-category-int-gloves",
+      "name": "INT Gloves",
+      "source_category_id": "10303",
+      "source_href": "INT_Gloves",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/INT_Gloves"
+    },
+    {
+      "group_label": "Gloves",
+      "id": "tlidb-category-vorax-limb-hands",
+      "name": "Vorax Limb: Hands",
+      "source_category_id": "110301",
+      "source_href": "Vorax_Limb_Hands",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Limb_Hands"
+    },
+    {
+      "group_label": "Boots",
+      "id": "tlidb-category-str-boots",
+      "name": "STR Boots",
+      "source_category_id": "10401",
+      "source_href": "STR_Boots",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/STR_Boots"
+    },
+    {
+      "group_label": "Boots",
+      "id": "tlidb-category-dex-boots",
+      "name": "DEX Boots",
+      "source_category_id": "10402",
+      "source_href": "DEX_Boots",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/DEX_Boots"
+    },
+    {
+      "group_label": "Boots",
+      "id": "tlidb-category-int-boots",
+      "name": "INT Boots",
+      "source_category_id": "10403",
+      "source_href": "INT_Boots",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/INT_Boots"
+    },
+    {
+      "group_label": "Boots",
+      "id": "tlidb-category-vorax-limb-legs",
+      "name": "Vorax Limb: Legs",
+      "source_category_id": "110401",
+      "source_href": "Vorax_Limb_Legs",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Limb_Legs"
+    },
+    {
+      "group_label": "Boots",
+      "id": "tlidb-category-vorax-aberrant-limb-legs",
+      "name": "Vorax Aberrant Limb: Legs",
+      "source_category_id": "110402",
+      "source_href": "Vorax_Aberrant_Limb_Legs",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Aberrant_Limb_Legs"
+    },
+    {
+      "group_label": "Shield",
+      "id": "tlidb-category-str-shield",
+      "name": "STR Shield",
+      "source_category_id": "10601",
+      "source_href": "STR_Shield",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/STR_Shield"
+    },
+    {
+      "group_label": "Shield",
+      "id": "tlidb-category-dex-shield",
+      "name": "DEX Shield",
+      "source_category_id": "10602",
+      "source_href": "DEX_Shield",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/DEX_Shield"
+    },
+    {
+      "group_label": "Shield",
+      "id": "tlidb-category-int-shield",
+      "name": "INT Shield",
+      "source_category_id": "10603",
+      "source_href": "INT_Shield",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/INT_Shield"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-necklace",
+      "name": "Necklace",
+      "source_category_id": "10701",
+      "source_href": "Necklace",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Necklace"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-vorax-limb-neck",
+      "name": "Vorax Limb: Neck",
+      "source_category_id": "110501",
+      "source_href": "Vorax_Limb_Neck",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Limb_Neck"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-ring",
+      "name": "Ring",
+      "source_category_id": "10702",
+      "source_href": "Ring",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Ring"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-spirit-ring",
+      "name": "Spirit Ring",
+      "source_category_id": "10703",
+      "source_href": "Spirit_Ring",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Spirit_Ring"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-vorax-limb-digits",
+      "name": "Vorax Limb: Digits",
+      "source_category_id": "110502",
+      "source_href": "Vorax_Limb_Digits",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Limb_Digits"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-vorax-aberrant-limb-digits",
+      "name": "Vorax Aberrant Limb: Digits",
+      "source_category_id": "110503",
+      "source_href": "Vorax_Aberrant_Limb_Digits",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Aberrant_Limb_Digits"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-belt",
+      "name": "Belt",
+      "source_category_id": "10704",
+      "source_href": "Belt",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Belt"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-vorax-limb-waist",
+      "name": "Vorax Limb: Waist",
+      "source_category_id": "110504",
+      "source_href": "Vorax_Limb_Waist",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Limb_Waist"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-vorax-aberrant-limb-waist",
+      "name": "Vorax Aberrant Limb: Waist",
+      "source_category_id": "110505",
+      "source_href": "Vorax_Aberrant_Limb_Waist",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Vorax_Aberrant_Limb_Waist"
+    },
+    {
+      "group_label": "",
+      "id": "tlidb-category-ethereal-prism",
+      "name": "Ethereal Prism",
+      "source_category_id": "100101",
+      "source_href": "Ethereal_Prism",
+      "source_section": "Gear",
+      "url": "https://tlidb.com/en/Ethereal_Prism"
+    }
+  ],
+  "category_count": 49,
+  "reference_category_count": 48,
+  "reference_comparison": {
+    "additional_on_site": [
+      "Ethereal Prism"
+    ],
+    "duplicate_reference_names": [],
+    "missing_from_site": []
+  },
+  "retrieved_at": "2026-10-19T22:59:45+00:00",
+  "schema_version": 1,
+  "source_sha256": "b1509b8e1fd4d9b0abc75f4113d11e073e8c31352b6ab223bc5fd3892ca932d6",
+  "source_site": "TLIDB",
+  "source_url": "https://tlidb.com/en/"
+}

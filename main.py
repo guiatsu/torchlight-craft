@@ -62,7 +62,7 @@ def _run_application(diagnostics: list[str]) -> int:
     QCoreApplication.setOrganizationName("Torchlight Craft Planner")
     QCoreApplication.setOrganizationDomain("local.torchlight-craft-planner")
     QCoreApplication.setApplicationName("Torchlight Craft Planner")
-    QCoreApplication.setApplicationVersion("0.1.1")
+    QCoreApplication.setApplicationVersion("0.2.0")
 
     app = QGuiApplication(sys.argv)
     root_dir = Path(__file__).resolve().parent

@@ -1,0 +1,12 @@
+{
+  "valid": true,
+  "schema_version": 2,
+  "counts": {
+    "categories": 49,
+    "bases": 2194,
+    "affix_families": 642,
+    "tier_rows": 13303,
+    "source_table_rows": 831
+  },
+  "issues": []
+}

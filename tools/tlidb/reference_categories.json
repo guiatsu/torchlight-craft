@@ -1,0 +1,16 @@
+{
+  "source": "v0.2.0 request control list; verify against live Gear navigation",
+  "categories": [
+    "Claw", "Dagger", "One-Handed Sword", "One-Handed Hammer", "One-Handed Axe",
+    "Wand", "Rod", "Scepter", "Cane", "Pistol", "Two-Handed Sword",
+    "Two-Handed Hammer", "Two-Handed Axe", "Tin Staff", "Cudgel", "Bow",
+    "Crossbow", "Musket", "Fire Cannon", "STR Helmet", "DEX Helmet",
+    "INT Helmet", "Vorax Limb: Head", "STR Chest Armor", "DEX Chest Armor",
+    "INT Chest Armor", "Vorax Limb: Chest", "STR Gloves", "DEX Gloves",
+    "INT Gloves", "Vorax Limb: Hands", "STR Boots", "DEX Boots", "INT Boots",
+    "Vorax Limb: Legs", "Vorax Aberrant Limb: Legs", "STR Shield", "DEX Shield",
+    "INT Shield", "Necklace", "Vorax Limb: Neck", "Ring", "Spirit Ring",
+    "Vorax Limb: Digits", "Vorax Aberrant Limb: Digits", "Belt",
+    "Vorax Limb: Waist", "Vorax Aberrant Limb: Waist"
+  ]
+}

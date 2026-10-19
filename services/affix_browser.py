@@ -40,7 +40,9 @@ class AffixBrowser:
             (
                 definition
                 for definition in self.catalog.affixes.values()
-                if (not definition.base_ids or base_id in definition.base_ids)
+                if not definition.is_legacy_alias
+                and definition.crafting_system_id in {"", "tlidb:standard-craft"}
+                and base_id in definition.base_ids
                 and definition.group == self.group
                 and definition.category == self.category
                 and (not query or query in definition.name.casefold())

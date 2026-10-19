@@ -25,6 +25,14 @@ class TierOption:
     item_level_required: int | None
     value_range: str
     verification_status: str = "community_reference_season_unverified"
+    requirement_level_raw: str | None = None
+    weight_raw: str | None = None
+    weight_parse_status: str = "missing"
+    library: str = ""
+    source_url: str = ""
+    source_section: str = ""
+    source_table: str = ""
+    source_row_key: str = ""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "TierOption":
@@ -39,6 +47,18 @@ class TierOption:
             verification_status=str(
                 data.get("verification_status", "community_reference_season_unverified")
             ),
+            requirement_level_raw=(
+                str(data["requirement_level_raw"])
+                if data.get("requirement_level_raw") is not None
+                else None
+            ),
+            weight_raw=(str(data["weight_raw"]) if data.get("weight_raw") is not None else None),
+            weight_parse_status=str(data.get("weight_parse_status", "missing")),
+            library=str(data.get("library", "")),
+            source_url=str(data.get("source_url", "")),
+            source_section=str(data.get("source_section", "")),
+            source_table=str(data.get("source_table", "")),
+            source_row_key=str(data.get("source_row_key", "")),
         )
 
 
@@ -54,6 +74,12 @@ class AffixDefinition:
     source_id: str
     verification_status: str = "community_reference_season_unverified"
     compatibility_status: str = "provisional"
+    source_url: str = ""
+    source_section: str = ""
+    source_family_id: str = ""
+    family_grouping_status: str = "unknown"
+    crafting_system_id: str = ""
+    is_legacy_alias: bool = False
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "AffixDefinition":
@@ -70,6 +96,12 @@ class AffixDefinition:
                 data.get("verification_status", "community_reference_season_unverified")
             ),
             compatibility_status=str(data.get("compatibility_status", "provisional")),
+            source_url=str(data.get("source_url", "")),
+            source_section=str(data.get("source_section", "")),
+            source_family_id=str(data.get("source_family_id", "")),
+            family_grouping_status=str(data.get("family_grouping_status", "unknown")),
+            crafting_system_id=str(data.get("crafting_system_id", "")),
+            is_legacy_alias=bool(data.get("is_legacy_alias", False)),
         )
 
 

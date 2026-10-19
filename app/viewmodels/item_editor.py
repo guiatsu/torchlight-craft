@@ -18,7 +18,20 @@ class ItemEditorViewModel(QObject):
     def __init__(self, service: ItemEditorService, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self.service = service
-        self._selected_base_category = self._current_base().category if self._current_base() else ""
+        self._selectable_bases = tuple(
+            sorted(
+                (base for base in self.service.catalog.bases.values() if not base.is_legacy_alias),
+                key=lambda base: (base.category.casefold(), base.subcategory.casefold(), base.name.casefold()),
+            )
+        )
+        current = self._current_base()
+        self._selected_base_category = current.category if current else ""
+        self._selected_base_subcategory = current.subcategory if current else ""
+        if current and current.is_legacy_alias:
+            matching = next((base for base in self._selectable_bases if base.subcategory == current.subcategory), None)
+            if matching:
+                self._selected_base_category = matching.category
+        self._base_search_query = ""
 
     def _current_base(self) -> BaseDefinition | None:
         return self.service.catalog.bases.get(self.service.item.base_id)
@@ -32,6 +45,11 @@ class ItemEditorViewModel(QObject):
             "equipmentType": base.equipment_type,
             "characterRequirementLevel": base.character_level_requirement,
             "minimumItemLevel": base.minimum_item_level,
+            "craftingClass": base.crafting_class,
+            "recordKind": base.record_kind,
+            "editorSupported": base.editor_supported,
+            "classificationEvidence": base.classification_evidence,
+            "legacyAlias": base.is_legacy_alias,
         }
 
     def _instance_view(self, instance) -> dict[str, object]:
@@ -132,6 +150,29 @@ class ItemEditorViewModel(QObject):
         return "Verification pending"
 
     @Property(str, notify=stateChanged)
+    def baseCraftingStatus(self) -> str:
+        base = self._current_base()
+        if base is None:
+            return "Base data unavailable"
+        if base.crafting_class == "standard_craftable":
+            return "Standard crafting data listed"
+        if base.crafting_class == "special_craftable":
+            return "Special modification system · not implemented"
+        if base.crafting_class == "non_craftable":
+            return "Not craftable in the documented source"
+        return "Crafting compatibility unknown"
+
+    @Property(str, notify=stateChanged)
+    def basePropertySummary(self) -> str:
+        base = self._current_base()
+        return " · ".join(base.base_properties[:4]) if base else ""
+
+    @Property(str, notify=stateChanged)
+    def baseSourceUrl(self) -> str:
+        base = self._current_base()
+        return base.source_url if base else ""
+
+    @Property(str, notify=stateChanged)
     def slotLimitText(self) -> str:
         base = self._current_base()
         if base is None or base.limit_status == "unknown":
@@ -142,27 +183,71 @@ class ItemEditorViewModel(QObject):
 
     @Property("QVariantList", notify=stateChanged)
     def baseCategories(self) -> list[dict[str, str]]:
-        categories = sorted({base.category for base in self.service.catalog.bases.values()})
+        categories = sorted({base.category for base in self._selectable_bases})
+        return [{"name": category, "id": category} for category in categories]
+
+    @Property("QVariantList", notify=stateChanged)
+    def baseSubcategories(self) -> list[dict[str, str]]:
+        categories = sorted({
+            base.subcategory for base in self._selectable_bases
+            if base.category == self._selected_base_category
+        })
         return [{"name": category, "id": category} for category in categories]
 
     @Property("QVariantList", notify=stateChanged)
     def baseOptions(self) -> list[dict[str, object]]:
-        return [
-            self._base_view(base)
-            for base in sorted(self.service.catalog.bases.values(), key=lambda item: (item.category, item.name))
+        query = self._base_search_query.casefold().strip()
+        matches = [
+            base for base in self._selectable_bases
             if base.category == self._selected_base_category
+            and (not self._selected_base_subcategory or base.subcategory == self._selected_base_subcategory)
+            and (not query or query in base.name.casefold())
         ]
+        matches = matches[:100]
+        current_id = self.service.item.base_id
+        if current_id not in {base.id for base in matches}:
+            current = self.service.catalog.bases.get(current_id)
+            if current and current.is_legacy_alias and current.subcategory == self._selected_base_subcategory:
+                matches = [current, *matches[:99]]
+            if current and not current.is_legacy_alias and current.category == self._selected_base_category:
+                if (not self._selected_base_subcategory or current.subcategory == self._selected_base_subcategory) and (
+                    not query or query in current.name.casefold()
+                ):
+                    matches = [current, *matches[:99]]
+        return [self._base_view(base) for base in matches]
 
     @Property("QVariantList", notify=stateChanged)
     def allBaseOptions(self) -> list[dict[str, object]]:
         return [
             self._base_view(base)
-            for base in sorted(self.service.catalog.bases.values(), key=lambda item: (item.category, item.name))
+            for base in self._selectable_bases
         ]
 
     @Property(str, notify=stateChanged)
     def selectedBaseCategory(self) -> str:
         return self._selected_base_category
+
+    @Property(str, notify=stateChanged)
+    def selectedBaseSubcategory(self) -> str:
+        return self._selected_base_subcategory
+
+    @Property(str, notify=stateChanged)
+    def baseSearchQuery(self) -> str:
+        return self._base_search_query
+
+    @Property(str, notify=stateChanged)
+    def baseResultSummary(self) -> str:
+        query = self._base_search_query.casefold().strip()
+        matching_count = sum(
+            1 for base in self._selectable_bases
+            if base.category == self._selected_base_category
+            and (not self._selected_base_subcategory or base.subcategory == self._selected_base_subcategory)
+            and (not query or query in base.name.casefold())
+        )
+        shown = len(self.baseOptions)
+        if matching_count > shown:
+            return f"Showing {shown} of {matching_count}; type to narrow the list"
+        return f"{matching_count} matching base(s)"
 
     @Property("QVariantList", notify=affixesChanged)
     def prefixSlots(self) -> list[dict[str, object]]:
@@ -254,6 +339,7 @@ class ItemEditorViewModel(QObject):
         base = self._current_base()
         if base:
             self._selected_base_category = base.category
+            self._selected_base_subcategory = base.subcategory
         self.stateChanged.emit()
         self.affixesChanged.emit()
         self.baseChanged.emit()
@@ -267,13 +353,37 @@ class ItemEditorViewModel(QObject):
 
     @Slot(str)
     def setBaseCategory(self, category: str) -> None:
-        if category not in {base.category for base in self.service.catalog.bases.values()}:
+        if category not in {base.category for base in self._selectable_bases}:
             return
         self._selected_base_category = category
-        options = [base for base in self.service.catalog.bases.values() if base.category == category]
-        if options and self.service.item.base_id not in {base.id for base in options}:
-            self.setBase(sorted(options, key=lambda base: base.name)[0].id)
+        options = [base for base in self._selectable_bases if base.category == category]
+        subcategories = sorted({base.subcategory for base in options})
+        self._selected_base_subcategory = subcategories[0] if subcategories else ""
+        initial_options = [base for base in options if base.subcategory == self._selected_base_subcategory]
+        if initial_options and self.service.item.base_id not in {base.id for base in initial_options}:
+            self.setBase(sorted(initial_options, key=lambda base: base.name.casefold())[0].id)
         else:
+            self.stateChanged.emit()
+
+    @Slot(str)
+    def setBaseSubcategory(self, subcategory: str) -> None:
+        options = [
+            base for base in self._selectable_bases
+            if base.category == self._selected_base_category and base.subcategory == subcategory
+        ]
+        if not options:
+            return
+        self._selected_base_subcategory = subcategory
+        if self.service.item.base_id not in {base.id for base in options}:
+            self.setBase(sorted(options, key=lambda base: base.name.casefold())[0].id)
+        else:
+            self.stateChanged.emit()
+
+    @Slot(str)
+    def setBaseSearch(self, query: str) -> None:
+        clean = query[:100]
+        if clean != self._base_search_query:
+            self._base_search_query = clean
             self.stateChanged.emit()
 
     @Slot(str)
@@ -288,5 +398,7 @@ class ItemEditorViewModel(QObject):
     def item_replaced(self) -> None:
         base = self._current_base()
         self._selected_base_category = base.category if base else ""
+        self._selected_base_subcategory = base.subcategory if base else ""
+        self._base_search_query = ""
         self.stateChanged.emit()
         self.affixesChanged.emit()
