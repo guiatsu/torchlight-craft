@@ -35,7 +35,9 @@ jobs:
 
       - name: Build standalone application
         shell: pwsh
-        run: .\.venv\Scripts\pyside6-deploy.exe --mode standalone --force
+        run: |
+          $env:PATH = "$(Resolve-Path '.venv\Scripts');$env:PATH"
+          .\.venv\Scripts\pyside6-deploy.exe --mode standalone --force
 
       - name: Verify and archive executable
         shell: pwsh
