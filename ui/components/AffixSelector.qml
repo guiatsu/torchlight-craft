@@ -1,65 +1,51 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../theme/Theme.js" as Theme
 
 Rectangle {
     id: root
-    required property var controller
-    color: "#0F1A24"
-    border.color: "#314451"
-    border.width: 1
-    radius: 9
+    required property var browser
+    color: Theme.surface
+    border.color: Theme.borderSoft
+    radius: Theme.radiusLarge
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 18
-        spacing: 12
+        anchors.margins: 16
+        spacing: 11
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 12
-
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 3
-                Text { text: "Affix catalogue"; color: "#E9EFF2"; font.pixelSize: 21; font.weight: Font.DemiBold }
-                Text { text: "Select a listed property to add or edit it"; color: "#8DA2AE"; font.pixelSize: 12 }
-            }
-            Rectangle {
-                radius: 4
-                color: "#283122"
-                border.color: "#677449"
-                implicitWidth: verifiedLabel.implicitWidth + 18
-                implicitHeight: 25
-                Text { id: verifiedLabel; anchors.centerIn: parent; text: "LOCAL DATA"; color: "#C7D18D"; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
-            }
+            Text { text: "Possible Affixes"; color: Theme.text; font.pixelSize: 21; font.weight: Font.DemiBold }
+            Item { Layout.fillWidth: true }
+            Text { text: root.browser.selectedMode === "replace" ? "REPLACING" : root.browser.selectedMode === "edit" ? "EDITING" : "LOCAL CATALOG"; color: root.browser.selectedMode === "replace" ? Theme.warning : Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 0.7 }
         }
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 10
-
+            spacing: 8
             Row {
-                spacing: 3
+                spacing: 4
                 Repeater {
                     model: [
                         { id: "prefix", label: "Prefix" },
                         { id: "suffix", label: "Suffix" }
                     ]
                     delegate: Button {
-                        id: groupFilterButton
+                        id: groupButton
                         required property var modelData
                         text: modelData.label
-                        onClicked: root.controller.setAffixGroup(modelData.id)
+                        onClicked: root.browser.setAffixGroup(modelData.id)
                         background: Rectangle {
-                            radius: 5
-                            color: root.controller.selectedGroup === modelData.id ? "#29414E" : "#121E28"
-                            border.color: root.controller.selectedGroup === modelData.id ? "#59C2CF" : "#2C404D"
+                            radius: Theme.radiusSmall
+                            color: root.browser.selectedGroup === modelData.id ? Theme.accentSoft : Theme.surfaceInset
+                            border.color: root.browser.selectedGroup === modelData.id ? Theme.accent : Theme.borderSoft
                         }
                         contentItem: Text {
-                            text: groupFilterButton.text
-                            color: root.controller.selectedGroup === modelData.id ? "#C5F2F5" : "#92A5AF"
-                            font.pixelSize: 12
+                            text: groupButton.text
+                            color: root.browser.selectedGroup === modelData.id ? "#D1F4F5" : Theme.textSecondary
+                            font.pixelSize: Theme.secondarySize
                             font.weight: Font.DemiBold
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
@@ -71,38 +57,45 @@ Rectangle {
             TextField {
                 id: searchField
                 Layout.fillWidth: true
-                Layout.preferredHeight: 38
+                Layout.preferredHeight: 36
+                text: root.browser.searchQuery
                 placeholderText: "Search affixes"
-                placeholderTextColor: "#778D99"
-                color: "#E6EDF0"
-                font.pixelSize: 12
-                leftPadding: 12
-                onTextEdited: root.controller.setSearchQuery(text)
-                background: Rectangle { color: "#0A141D"; radius: 5; border.color: searchField.activeFocus ? "#56BFCB" : "#2A3F4C" }
+                placeholderTextColor: Theme.textMuted
+                color: Theme.text
+                font.pixelSize: Theme.secondarySize
+                leftPadding: 11
+                selectByMouse: true
+                onTextEdited: root.browser.setSearchQuery(text)
+                background: Rectangle {
+                    color: Theme.surfaceInset
+                    radius: Theme.radiusSmall
+                    border.color: searchField.activeFocus ? Theme.accent : Theme.borderSoft
+                }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 6
+            spacing: 4
             Repeater {
                 model: ["Basic", "Advanced", "Ultimate"]
                 delegate: Button {
-                    id: categoryFilterButton
+                    id: categoryButton
                     required property string modelData
                     Layout.fillWidth: true
+                    Layout.preferredHeight: 34
                     text: modelData
-                    onClicked: root.controller.setAffixCategory(modelData)
+                    onClicked: root.browser.setAffixCategory(modelData)
                     background: Rectangle {
-                        radius: 5
-                        color: root.controller.selectedCategory === modelData ? "#263946" : "transparent"
-                        border.color: root.controller.selectedCategory === modelData ? "#647F8B" : "transparent"
+                        radius: Theme.radiusSmall
+                        color: root.browser.selectedCategory === modelData ? Theme.surfaceRaised : "transparent"
+                        border.color: root.browser.selectedCategory === modelData ? Theme.border : "transparent"
                     }
                     contentItem: Text {
-                        text: categoryFilterButton.text
-                        color: root.controller.selectedCategory === modelData ? "#E8EFF2" : "#8498A3"
-                        font.pixelSize: 12
-                        font.weight: root.controller.selectedCategory === modelData ? Font.DemiBold : Font.Medium
+                        text: categoryButton.text
+                        color: root.browser.selectedCategory === modelData ? Theme.text : Theme.textMuted
+                        font.pixelSize: Theme.secondarySize
+                        font.weight: root.browser.selectedCategory === modelData ? Font.DemiBold : Font.Medium
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -110,12 +103,12 @@ Rectangle {
             }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#243743" }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSoft }
 
         RowLayout {
             Layout.fillWidth: true
-            Text { Layout.fillWidth: true; text: "POSSIBLE AFFIXES"; color: "#8399A5"; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.2 }
-            Text { text: "LISTED TIERS"; color: "#8399A5"; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.1 }
+            Text { Layout.fillWidth: true; text: "AFFIX"; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
+            Text { text: "TIERS"; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
         }
 
         ButtonGroup { id: affixChoiceGroup }
@@ -123,40 +116,41 @@ Rectangle {
         ListView {
             id: affixList
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: Math.min(220, Math.max(100, root.browser.availableAffixes.length * 66 + 16))
+            Layout.minimumHeight: 100
+            Layout.maximumHeight: 220
+            Layout.fillHeight: false
             clip: true
-            spacing: 6
-            model: root.controller.availableAffixes
+            spacing: 5
+            model: root.browser.availableAffixes
             ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
             delegate: RadioButton {
                 id: candidate
                 required property var modelData
                 width: affixList.width - 8
-                height: candidateContent.implicitHeight + 16
-                checked: root.controller.selectedDefinitionId === modelData.id
+                height: Math.max(58, candidateContent.implicitHeight + 14)
+                checked: root.browser.selectedDefinitionId === modelData.id
                 enabled: !modelData.alreadyAdded
                 ButtonGroup.group: affixChoiceGroup
-                onClicked: root.controller.selectDefinition(modelData.id)
+                onClicked: root.browser.selectDefinition(modelData.id)
 
                 background: Rectangle {
-                    radius: 5
-                    color: candidate.checked ? "#243A46" : "#17232E"
-                    border.color: candidate.checked ? "#56BFCC" : "#324652"
-                    border.width: candidate.checked ? 1.3 : 1
-                    opacity: candidate.enabled ? 1 : 0.62
+                    radius: Theme.radiusSmall
+                    color: candidate.checked ? "#203945" : Theme.surfaceRaised
+                    border.color: candidate.checked ? Theme.accent : Theme.borderSoft
+                    opacity: candidate.enabled ? 1 : 0.55
                 }
 
                 indicator: Item {
-                    width: 20
-                    height: 20
+                    width: 18
+                    height: 18
                     x: candidate.width - width - 13
                     y: (candidate.height - height) / 2
-
                     Rectangle {
                         anchors.fill: parent
                         radius: width / 2
-                        color: "#101B24"
-                        border.color: candidate.checked ? "#66D0DC" : "#8999A0"
+                        color: Theme.surfaceInset
+                        border.color: candidate.checked ? Theme.accent : Theme.textMuted
                         border.width: candidate.checked ? 2 : 1
                     }
                     Rectangle {
@@ -165,7 +159,7 @@ Rectangle {
                         height: 8
                         radius: 4
                         visible: candidate.checked
-                        color: "#66D0DC"
+                        color: Theme.accent
                     }
                 }
 
@@ -173,110 +167,94 @@ Rectangle {
                     id: candidateContent
                     anchors.fill: candidate
                     anchors.leftMargin: 12
-                    anchors.rightMargin: 44
-                    anchors.topMargin: 8
-                    anchors.bottomMargin: 8
-                    spacing: 10
-
-                    Rectangle {
-                        Layout.alignment: Qt.AlignTop
-                        width: 24; height: 24; radius: 12
-                        color: "#394852"; border.color: "#687B83"
-                        Image { anchors.centerIn: parent; source: "../../assets/icons/info.svg"; width: 15; height: 15 }
-                    }
-
+                    anchors.rightMargin: 42
+                    anchors.topMargin: 7
+                    anchors.bottomMargin: 7
+                    spacing: 9
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 3
                         Text {
                             Layout.fillWidth: true
                             text: modelData.name
-                            color: "#E5ECEF"
-                            font.pixelSize: 13
+                            color: Theme.text
+                            font.pixelSize: Theme.bodySize
+                            font.weight: Font.Medium
                             wrapMode: Text.WordWrap
                             maximumLineCount: 2
                             elide: Text.ElideRight
                         }
                         Text {
                             Layout.fillWidth: true
-                            text: modelData.alreadyAdded ? "Already on this item" : modelData.category + " · Compatibility provisional"
-                            color: modelData.alreadyAdded ? "#D8B771" : "#A0B1B8"
+                            text: modelData.alreadyAdded ? "Already on this equipment" : "Compatibility provisional"
+                            color: modelData.alreadyAdded ? Theme.warning : Theme.textMuted
                             font.pixelSize: 10
-                            elide: Text.ElideRight
                         }
                     }
-
-                    Text { text: modelData.tierSummary; color: "#E8C16E"; font.pixelSize: 10; font.weight: Font.Bold }
+                    Text { text: modelData.tierSummary; color: Theme.basic; font.pixelSize: 10; font.weight: Font.DemiBold }
                 }
             }
 
             ColumnLayout {
                 anchors.centerIn: parent
-                visible: root.controller.availableAffixes.length === 0
-                spacing: 8
-                Text { Layout.alignment: Qt.AlignHCenter; text: "No entries in this view"; color: "#CED9DE"; font.pixelSize: 14; font.weight: Font.DemiBold }
+                visible: root.browser.availableAffixes.length === 0
+                spacing: 6
+                Text { Layout.alignment: Qt.AlignHCenter; text: "No matching affixes"; color: Theme.text; font.pixelSize: 15; font.weight: Font.DemiBold }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    Layout.maximumWidth: affixList.width - 44
-                    text: "The local catalogue has no matching affixes for this base and filter. No compatibility rules are being inferred."
-                    color: "#8DA2AC"
-                    font.pixelSize: 11
+                    Layout.maximumWidth: affixList.width - 36
+                    text: "The local catalog has no entries for this base and filter. Unknown compatibility rules are not inferred."
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.secondarySize
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                 }
             }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#243743" }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSoft }
 
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 9
-
+            spacing: 8
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 3
-                    Text { text: root.controller.isEditingAffix ? "Edit selected affix" : "Selected affix"; color: "#E5ECEF"; font.pixelSize: 13; font.weight: Font.DemiBold }
-                    Text { Layout.fillWidth: true; text: root.controller.selectionVerificationText; color: "#8FA6B1"; font.pixelSize: 10; elide: Text.ElideRight }
+                    spacing: 2
+                    Text { text: root.browser.selectedDefinitionName; color: Theme.text; font.pixelSize: 14; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                    Text { text: root.browser.selectionVerificationText; color: Theme.textMuted; font.pixelSize: 10; elide: Text.ElideRight }
                 }
                 Button {
-                    id: removeAffixButton
-                    visible: root.controller.isEditingAffix
+                    visible: root.browser.isEditingAffix
                     text: "Remove"
-                    onClicked: root.controller.removeSelectedAffix()
-                    background: Rectangle { radius: 5; color: "#322222"; border.color: "#71453F" }
-                    contentItem: Text { text: removeAffixButton.text; color: "#F0B1A2"; font.pixelSize: 11; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    onClicked: root.browser.removeSelectedAffix()
+                    background: Rectangle { radius: Theme.radiusSmall; color: "#332321"; border.color: "#704940" }
+                    contentItem: Text { text: parent.text; color: Theme.error; font.pixelSize: 10; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                 }
             }
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 7
+                spacing: 6
                 Repeater {
-                        model: root.controller.tierOptions
+                    model: root.browser.tierOptions
                     delegate: Button {
                         id: tierButton
                         required property var modelData
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 34
                         enabled: modelData.eligible
-                        text: modelData.eligible ? modelData.id : modelData.id + " · " + modelData.itemLevelRequired
-                        onClicked: root.controller.setTier(modelData.id)
+                        text: modelData.eligible ? modelData.id : modelData.id + " · iLvl " + modelData.itemLevelRequired
+                        onClicked: root.browser.setTier(modelData.id)
                         background: Rectangle {
-                            radius: 4
-                            color: root.controller.selectedTierId === modelData.id ? "#42365A" : "#17232E"
-                            border.color: root.controller.selectedTierId === modelData.id ? "#B08BE5" : "#334855"
-                            opacity: modelData.eligible ? 1 : 0.5
+                            radius: Theme.radiusSmall
+                            color: root.browser.selectedTierId === modelData.id ? "#3B3150" : Theme.surfaceRaised
+                            border.color: root.browser.selectedTierId === modelData.id ? Theme.advanced : Theme.borderSoft
+                            opacity: modelData.eligible ? 1 : 0.55
                         }
-                        contentItem: Text {
-                            text: tierButton.text
-                            color: "#D9C4F5"
-                            font.pixelSize: 11
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
+                        contentItem: Text { text: tierButton.text; color: Theme.text; font.pixelSize: 10; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight }
                     }
                 }
             }
@@ -284,12 +262,13 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 text: {
-                    var options = root.controller.tierOptions
-                    for (var i = 0; i < options.length; ++i) if (options[i].id === root.controller.selectedTierId) return options[i].valueRange
+                    var options = root.browser.tierOptions
+                    for (var i = 0; i < options.length; ++i)
+                        if (options[i].id === root.browser.selectedTierId) return options[i].valueRange
                     return "Choose a tier to see its listed range."
                 }
-                color: "#9EAFB6"
-                font.pixelSize: 11
+                color: Theme.textSecondary
+                font.pixelSize: Theme.secondarySize
                 wrapMode: Text.WordWrap
                 maximumLineCount: 2
                 elide: Text.ElideRight
@@ -301,29 +280,41 @@ Rectangle {
                 TextField {
                     id: valueField
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    text: root.controller.selectedValue
-                    placeholderText: "Editable display value"
-                    placeholderTextColor: "#748A97"
-                    color: "#E6EDF0"
-                    font.pixelSize: 11
-                    enabled: root.controller.selectedValueEditable
-                    onTextEdited: root.controller.setAffixValue(text)
-                    background: Rectangle { radius: 5; color: "#0A141D"; border.color: valueField.activeFocus ? "#56C2CE" : "#2C424F" }
+                    Layout.preferredHeight: 38
+                    text: root.browser.selectedValue
+                    placeholderText: "Affix value"
+                    placeholderTextColor: Theme.textMuted
+                    color: Theme.text
+                    font.pixelSize: Theme.secondarySize
+                    enabled: root.browser.selectedValueEditable
+                    selectByMouse: true
+                    onTextEdited: root.browser.setAffixValue(text)
+                    background: Rectangle {
+                        radius: Theme.radiusSmall
+                        color: Theme.surfaceInset
+                        border.color: valueField.activeFocus ? Theme.accent : Theme.borderSoft
+                    }
                 }
                 Button {
                     id: commitAffixButton
-                    Layout.preferredWidth: 132
-                    Layout.preferredHeight: 40
-                    text: root.controller.selectedDefinitionAlreadyAdded ? "Already added" : root.controller.isEditingAffix ? "Update affix" : "Add affix"
-                    enabled: root.controller.selectedDefinitionId.length > 0 && root.controller.selectedTierEligible && !root.controller.selectedDefinitionAlreadyAdded
-                    onClicked: root.controller.addOrUpdateAffix()
+                    Layout.preferredWidth: 138
+                    Layout.preferredHeight: 38
+                    text: root.browser.actionLabel
+                    enabled: root.browser.selectedDefinitionId.length > 0 && root.browser.selectedTierEligible && !root.browser.selectedDefinitionAlreadyAdded
+                    onClicked: root.browser.addOrUpdateAffix()
                     background: Rectangle {
-                        radius: 5
-                        color: commitAffixButton.enabled ? "#C99A43" : "#514838"
-                        border.color: commitAffixButton.enabled ? "#E5BE69" : "#655B48"
+                        radius: Theme.radiusSmall
+                        color: commitAffixButton.enabled ? Theme.gold : "#514838"
+                        border.color: commitAffixButton.enabled ? Theme.goldBright : "#655B48"
                     }
-                    contentItem: Text { text: commitAffixButton.text; color: commitAffixButton.enabled ? "#172028" : "#B0A58E"; font.pixelSize: 12; font.weight: Font.Bold; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    contentItem: Text {
+                        text: commitAffixButton.text
+                        color: commitAffixButton.enabled ? "#17212A" : "#C4BAA2"
+                        font.pixelSize: Theme.secondarySize
+                        font.weight: Font.Bold
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                 }
             }
         }

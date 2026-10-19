@@ -28,3 +28,22 @@ def test_catalog_affix_can_be_instanced_with_unique_ids():
     assert first.group.value == "prefix"
     assert first.id != second.id
     assert first.value == tier.value_range
+
+
+def test_schema_v1_item_shape_survives_deserialize_serialize_round_trip():
+    legacy_document = {
+        "schema_version": 1,
+        "item": {
+            "id": "item-existing-1",
+            "name": "Existing cane",
+            "base_id": "sleeping-sages-cane",
+            "item_level": 86,
+            "priceless": False,
+            "rarity": None,
+            "affixes": [],
+        },
+    }
+
+    item = deserialize_item(legacy_document)
+
+    assert serialize_item(item) == legacy_document

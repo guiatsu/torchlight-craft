@@ -28,11 +28,12 @@ The app is designed for a desktop Windows workflow and should remain usable offl
 
 ## Capabilities and Constraints
 
-- v0.1 includes base selection, integer Item Level, a Priceless toggle, prefix/suffix selection and editing, and JSON save/load/duplicate/rename/delete.
+- v0.1.1 includes base selection, integer Item Level, a Priceless toggle, prefix/suffix selection and editing, explicit catalog-listed slots, and JSON save/load/duplicate/rename/delete.
+- Changing to a base that does not list an existing affix preserves that affix and blocks saving until it is replaced or explicitly removed.
 - Affix catalog data stays separate from QML and includes source and verification status.
 - Unknown compatibility and slot rules must remain visibly unverified rather than being presented as game rules.
 - No crafting simulation, probabilities, material costs, OCR, game-process access, or automatic catalog updates.
-- The requested distribution target is Windows x64. A Windows build cannot be produced from the current WSL session.
+- The requested distribution target is a standalone Windows x64 package. CI builds from a clean runtime staging directory and smoke-tests the packaged GUI executable.
 - The initial catalog is small and its community-source entries are pending SS14 verification.
 
 ## Brand Commitments

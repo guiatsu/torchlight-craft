@@ -1,15 +1,21 @@
 # Torchlight Craft Planner
 
-Version 0.1 is an offline desktop item editor for Torchlight: Infinite. The UI follows the supplied crafting-screen reference while using original vector artwork. It does not perform crafts or calculate costs or probabilities.
+Version 0.1.1 is an offline desktop item editor for Torchlight: Infinite. Its centered two-panel workspace follows the composition of the supplied crafting-screen reference while using original vector artwork. It does not perform crafts or calculate costs or probabilities.
 
 ## Features
 
 - Pick a local equipment base, set Item Level, and toggle Priceless independently from rarity.
 - Add, edit, replace, and remove catalog affixes in separate prefix and suffix groups.
+- Show each slot when its count is present in the local catalog; unknown limits remain unknown.
+- Preserve incompatible affixes after a base change, identify them, and require an explicit removal or replacement before saving.
 - Search the local affix catalog and filter Basic, Advanced, and Ultimate entries.
 - Save, open, duplicate, rename, and delete equipment in a versioned JSON library.
 - Keep an atomic backup of the previous library file when saving.
 - Keep uncertain catalog compatibility and slot limits visible in the interface.
+
+## Architecture
+
+The Qt/QML facade in `app/controller.py` composes three focused view-models. The Python-only services own equipment edits, affix browsing state, and library operations. Models live under `core/models/`; `from core.models import ...` remains supported for existing imports. The editor service owns the single mutable equipment session, so the view-models do not keep competing item copies.
 
 ## Catalog and verification
 
@@ -51,7 +57,7 @@ or:
 
 ## Windows standalone build
 
-The [Windows standalone workflow](.github/workflows/windows-build.yml) runs on pushes to `main` and can also be started manually from GitHub Actions. It builds on a Windows x64 runner, checks for the executable, and uploads `TorchlightCraftPlanner-Windows-x64.zip` as a workflow artifact. Download it from the completed run's **Artifacts** section. The artifact contains a standalone folder, not a onefile executable.
+The [Windows standalone workflow](.github/workflows/windows-build.yml) runs on pushes to `main` and can also be started manually from GitHub Actions. It stages only the runtime Python packages, UI, assets, and catalog before compiling on a Windows x64 runner. It checks the GUI executable's actual process exit code and uploads `TorchlightCraftPlanner-Windows-x64.zip` only after the packaged QML smoke test passes. Startup failures write diagnostics to `%TEMP%\TorchlightCraftPlanner-startup.log`. The artifact contains a standalone folder, not a onefile executable.
 
 PySide6's deployment configuration is in `pysidedeploy.spec` and the `[tool.pyside6.deploy]` section of `pyproject.toml`; both include the QML files, original vector assets, and local JSON catalog.
 
@@ -64,11 +70,11 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\pyside6-deploy.exe --mode standalone
 ```
 
-The official workflow and spec format are documented in [Qt for Python's pyside6-deploy guide](https://doc.qt.io/qtforpython-6/deployment/deployment-pyside6-deploy.html).
+The CI runtime staging step is defined in `tools/stage_windows_runtime.ps1`. The deployment settings are in `pysidedeploy.spec` and `pyproject.toml`. The official workflow and spec format are documented in [Qt for Python's pyside6-deploy guide](https://doc.qt.io/qtforpython-6/deployment/deployment-pyside6-deploy.html).
 
 ## Known limits
 
 - The small catalog is community data pending season verification.
 - The current three-per-side limit is a screenshot-derived example for Sleeping Sage's Cane only. Other base limits are unknown and not enforced.
 - The generic Ring entry has no named base selected.
-- No Windows build can be produced from the current Linux/WSL environment.
+- The offscreen smoke test checks startup and QML loading; it does not replace visual review in a Windows desktop session.

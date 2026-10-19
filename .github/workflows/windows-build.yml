@@ -34,20 +34,38 @@ jobs:
         shell: pwsh
         run: .\build\.venv\Scripts\python.exe -m pytest
 
+      - name: Stage runtime files
+        shell: pwsh
+        run: |
+          $stage = Join-Path $env:RUNNER_TEMP "torchlight-craft-runtime-$env:GITHUB_RUN_ID"
+          .\tools\stage_windows_runtime.ps1 -Destination $stage
+          "RUNTIME_STAGE=$stage" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Build standalone application
         shell: pwsh
         run: |
+          $workspace = (Resolve-Path $env:RUNTIME_STAGE).Path
           $env:PATH = "$(Resolve-Path 'build\.venv\Scripts');$env:PATH"
-          .\build\.venv\Scripts\pyside6-deploy.exe --mode standalone --force
+          Push-Location $workspace
+          try {
+            & (Join-Path $env:GITHUB_WORKSPACE "build\.venv\Scripts\pyside6-deploy.exe") --mode standalone --force
+            if ($LASTEXITCODE -ne 0) {
+              throw "pyside6-deploy failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
 
       - name: Verify and archive executable
         shell: pwsh
         run: |
-          $bundle = Get-ChildItem -Path "dist" -Directory -ErrorAction SilentlyContinue |
+          $workspace = (Resolve-Path $env:RUNTIME_STAGE).Path
+          $bundle = Get-ChildItem -Path (Join-Path $workspace "dist") -Directory -ErrorAction SilentlyContinue |
             Where-Object { $_.Name.EndsWith(".dist") } |
             Select-Object -First 1
           if ($null -eq $bundle) {
-            Get-ChildItem dist -Recurse -ErrorAction SilentlyContinue
+            Get-ChildItem (Join-Path $workspace "dist") -Recurse -ErrorAction SilentlyContinue
             throw "The standalone output folder was not generated."
           }
           $executable = Get-ChildItem -Path $bundle.FullName -Filter "*.exe" -File |
@@ -57,11 +75,35 @@ jobs:
             throw "No executable was found in $($bundle.FullName)."
           }
           $env:QT_QPA_PLATFORM = "offscreen"
-          & $executable.FullName --smoke-test
-          if ($LASTEXITCODE -ne 0) {
+          $env:QT_DEBUG_PLUGINS = "1"
+          $diagnosticLog = Join-Path $env:TEMP "TorchlightCraftPlanner-startup.log"
+          $smokeStdOut = Join-Path $env:TEMP "TorchlightCraftPlanner-smoke.stdout.log"
+          $smokeStdErr = Join-Path $env:TEMP "TorchlightCraftPlanner-smoke.stderr.log"
+          Remove-Item -LiteralPath $diagnosticLog -Force -ErrorAction SilentlyContinue
+          Remove-Item -LiteralPath $smokeStdOut, $smokeStdErr -Force -ErrorAction SilentlyContinue
+          $process = Start-Process -FilePath $executable.FullName -ArgumentList @("--smoke-test") -WorkingDirectory $bundle.FullName -RedirectStandardOutput $smokeStdOut -RedirectStandardError $smokeStdErr -PassThru -Wait
+          if ($process.ExitCode -ne 0) {
+            Write-Host "Packaged GUI executable exited with code $($process.ExitCode)."
+            if (Test-Path -LiteralPath $diagnosticLog) {
+              Get-Content -LiteralPath $diagnosticLog
+            }
+            else {
+              Write-Host "No startup diagnostic file was created at $diagnosticLog."
+            }
+            foreach ($log in @($smokeStdOut, $smokeStdErr)) {
+              if (Test-Path -LiteralPath $log) {
+                Write-Host "Captured output from $log"
+                Get-Content -LiteralPath $log -Tail 200
+              }
+            }
+            Get-ChildItem $bundle.FullName -Recurse | Select-Object -First 80 FullName
             throw "The packaged application failed its QML startup smoke test."
           }
-          $archive = "dist\TorchlightCraftPlanner-Windows-x64.zip"
+          Remove-Item -LiteralPath (Join-Path $bundle.FullName "assets\icons\planner-mark.ico") -Force -ErrorAction SilentlyContinue
+          $archiveDirectory = Join-Path $env:GITHUB_WORKSPACE "dist"
+          New-Item -ItemType Directory -Force -Path $archiveDirectory | Out-Null
+          $archive = Join-Path $archiveDirectory "TorchlightCraftPlanner-Windows-x64.zip"
+          Remove-Item -LiteralPath $archive -Force -ErrorAction SilentlyContinue
           Compress-Archive -Path $bundle.FullName -DestinationPath $archive -CompressionLevel Optimal
 
       - name: Upload standalone artifact

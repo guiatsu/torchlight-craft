@@ -2,234 +2,262 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "components"
+import "theme/Theme.js" as Theme
 
 RowLayout {
     id: root
-    required property var controller
-    spacing: 16
+    required property var editor
+    required property var browser
+    spacing: 14
 
     Rectangle {
         Layout.fillHeight: true
         Layout.fillWidth: true
-        Layout.minimumWidth: 405
-        Layout.preferredWidth: 0.92
-        color: "#101B25"
-        border.color: "#2D414D"
-        border.width: 1
-        radius: 10
+        Layout.minimumWidth: 360
+        Layout.preferredWidth: 0.42
+        color: Theme.surface
+        border.color: Theme.borderSoft
+        radius: Theme.radiusLarge
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 18
-            spacing: 13
+            anchors.margins: 15
+            spacing: 10
+
+            BaseSelector { Layout.fillWidth: true; editor: root.editor }
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 14
+                spacing: 12
 
                 Rectangle {
-                    width: 72; height: 72; radius: 8
-                    color: "#172938"
-                    border.color: "#4B5360"
-                    Image { anchors.fill: parent; anchors.margins: 1; source: "../assets/icons/weapon-sigil.svg"; fillMode: Image.PreserveAspectFit }
+                    Layout.preferredWidth: 64
+                    Layout.preferredHeight: 64
+                    radius: Theme.radiusMedium
+                    color: "#152B39"
+                    border.color: "#53626B"
+                    Image {
+                        anchors.fill: parent
+                        anchors.margins: 3
+                        source: "../assets/icons/weapon-sigil.svg"
+                        fillMode: Image.PreserveAspectFit
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 6
+                    spacing: 3
                     TextField {
-                        id: nameField
                         Layout.fillWidth: true
-                        text: root.controller.itemName
+                        text: root.editor.itemName
                         placeholderText: "Equipment name"
-                        placeholderTextColor: "#748B96"
-                        color: "#F0F2F1"
+                        placeholderTextColor: Theme.textMuted
+                        color: Theme.text
                         font.pixelSize: 19
                         font.weight: Font.DemiBold
                         selectByMouse: true
                         maximumLength: 80
-                        onTextEdited: root.controller.setItemName(text)
-                        background: Rectangle { color: "transparent"; border.width: 0 }
+                        onTextEdited: root.editor.setItemName(text)
+                        background: Rectangle { color: "transparent" }
                     }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 8
-                        Text { text: "Item Level " + root.controller.itemLevel; color: "#B1C1C7"; font.pixelSize: 12; font.weight: Font.Medium }
-                        Rectangle { width: 1; height: 14; color: "#43535B" }
-                        Text { text: root.controller.baseSubcategory; color: "#8A9EA8"; font.pixelSize: 12 }
+                    Text {
+                        text: root.editor.baseSubcategory + " · " + root.editor.baseCategory
+                        color: Theme.textSecondary
+                        font.pixelSize: Theme.secondarySize
                     }
-                }
-
-                Rectangle {
-                    visible: root.controller.priceless
-                    radius: 4
-                    color: "#473A21"
-                    border.color: "#C89C48"
-                    implicitWidth: pricelessLabel.implicitWidth + 16
-                    implicitHeight: 24
-                    Text { id: pricelessLabel; anchors.centerIn: parent; text: "PRICELESS"; color: "#EBCB82"; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
                 }
             }
-
-            BaseSelector { Layout.fillWidth: true; controller: root.controller }
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 14
-
-                ColumnLayout {
-                    Layout.preferredWidth: 154
-                    spacing: 5
-                    Text { text: "ITEM LEVEL"; color: "#8398A5"; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.1 }
-                    SpinBox {
-                        id: itemLevelSpin
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 40
-                        from: 1
-                        to: 100
-                        value: root.controller.itemLevel
-                        editable: true
-                        validator: IntValidator { bottom: 1; top: 100 }
-                        onValueModified: root.controller.setItemLevel(value)
-                        palette.text: "#ECF2F4"
-                        palette.buttonText: "#EAF1F3"
-                        palette.mid: "#70848D"
-                        background: Rectangle { radius: 5; color: "#0C1720"; border.color: itemLevelSpin.activeFocus ? "#64C5D1" : "#324652" }
+                spacing: 9
+                Text { text: "Item Level"; color: Theme.textSecondary; font.pixelSize: Theme.secondarySize }
+                SpinBox {
+                    id: itemLevelSpin
+                    Layout.preferredWidth: 110
+                    Layout.preferredHeight: 34
+                    from: 1
+                    to: 100
+                    value: root.editor.itemLevel
+                    editable: true
+                    validator: IntValidator { bottom: 1; top: 100 }
+                    onValueModified: root.editor.setItemLevel(value)
+                    palette.text: Theme.text
+                    palette.buttonText: Theme.text
+                    background: Rectangle {
+                        radius: Theme.radiusSmall
+                        color: Theme.surfaceInset
+                        border.color: itemLevelSpin.activeFocus ? Theme.accent : Theme.borderSoft
                     }
                 }
-
-                Rectangle { width: 1; height: 42; color: "#30434F"; Layout.alignment: Qt.AlignBottom }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 5
-                    Text { text: "ITEM STATE"; color: "#8398A5"; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.1 }
-                    CheckBox {
-                        id: pricelessCheck
-                        text: "Priceless"
-                        checked: root.controller.priceless
-                        onToggled: root.controller.setPriceless(checked)
-                        spacing: 8
-                        indicator: Rectangle {
-                            implicitWidth: 19; implicitHeight: 19
-                            x: pricelessCheck.leftPadding
-                            y: parent.height / 2 - height / 2
-                            radius: 4
-                            color: pricelessCheck.checked ? "#B58A3C" : "#15232D"
-                            border.color: pricelessCheck.checked ? "#E2BF6D" : "#536873"
-                            Image { anchors.centerIn: parent; visible: pricelessCheck.checked; source: "../assets/icons/check.svg"; width: 13; height: 13 }
-                        }
-                        contentItem: Text {
-                            text: pricelessCheck.text
-                            color: "#E1E8EA"
-                            font.pixelSize: 13
-                            verticalAlignment: Text.AlignVCenter
-                            leftPadding: pricelessCheck.indicator.width + pricelessCheck.spacing
+                CheckBox {
+                    id: pricelessCheck
+                    text: "Priceless"
+                    checked: root.editor.priceless
+                    onToggled: root.editor.setPriceless(checked)
+                    spacing: 6
+                    indicator: Rectangle {
+                        implicitWidth: 18
+                        implicitHeight: 18
+                        x: pricelessCheck.leftPadding
+                        y: parent.height / 2 - height / 2
+                        radius: 3
+                        color: pricelessCheck.checked ? Theme.gold : Theme.surfaceInset
+                        border.color: pricelessCheck.checked ? Theme.goldBright : Theme.border
+                        Image {
+                            anchors.centerIn: parent
+                            visible: pricelessCheck.checked
+                            source: "../assets/icons/check.svg"
+                            width: 12
+                            height: 12
                         }
                     }
-                    Text { text: "Rarity: " + root.controller.rarityLabel + " · independent field"; color: "#8196A0"; font.pixelSize: 10 }
+                    contentItem: Text {
+                        text: pricelessCheck.text
+                        color: Theme.text
+                        font.pixelSize: Theme.bodySize
+                        verticalAlignment: Text.AlignVCenter
+                        leftPadding: pricelessCheck.indicator.width + pricelessCheck.spacing
+                    }
+                }
+                Item { Layout.fillWidth: true }
+                Text {
+                    text: root.editor.rarityLabel === "Not set" ? "Rarity not set" : root.editor.rarityLabel
+                    color: Theme.textMuted
+                    font.pixelSize: 10
                 }
             }
 
-            Rectangle { Layout.fillWidth: true; height: 1; color: "#243641" }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSoft }
+
+            Rectangle {
+                visible: root.editor.hasIncompatibleAffixes
+                Layout.fillWidth: true
+                implicitHeight: incompatibleLayout.implicitHeight + 18
+                radius: Theme.radiusSmall
+                color: "#342D1F"
+                border.color: "#887044"
+                ColumnLayout {
+                    id: incompatibleLayout
+                    anchors.fill: parent
+                    anchors.margins: 9
+                    spacing: 6
+                    Text {
+                        text: "Review incompatible affixes before saving"
+                        color: Theme.warning
+                        font.pixelSize: Theme.secondarySize
+                        font.weight: Font.DemiBold
+                    }
+                    Repeater {
+                        model: root.editor.incompatibleAffixes
+                        delegate: Text {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            text: "• " + modelData.name + " — " + modelData.reason
+                            color: Theme.textSecondary
+                            font.pixelSize: 10
+                            elide: Text.ElideRight
+                        }
+                    }
+                    Button {
+                        Layout.alignment: Qt.AlignRight
+                        text: "Remove incompatible"
+                        onClicked: incompatibleConfirm.open()
+                        background: Rectangle { radius: Theme.radiusSmall; color: "#46372A"; border.color: "#8B6940" }
+                        contentItem: Text {
+                            text: parent.text
+                            color: "#F0D9B2"
+                            font.pixelSize: 10
+                            font.weight: Font.DemiBold
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                }
+            }
 
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 3
-                    Text { text: "Equipment affixes"; color: "#E7ECEF"; font.pixelSize: 16; font.weight: Font.DemiBold }
-                    Text { Layout.fillWidth: true; text: root.controller.slotLimitText; color: "#849BA6"; font.pixelSize: 10; elide: Text.ElideRight }
-                }
-                Text { text: root.controller.isDirty ? "UNSAVED" : "SAVED"; color: root.controller.isDirty ? "#E5BE72" : "#78C9B3"; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
+                Text { text: "Prefixes"; color: Theme.text; font.pixelSize: 15; font.weight: Font.DemiBold }
+                Text { text: root.editor.prefixCountLabel; color: Theme.textSecondary; font.pixelSize: Theme.secondarySize }
+                Item { Layout.fillWidth: true }
+                Text { text: root.editor.prefixHeaderHint; color: Theme.textMuted; font.pixelSize: 10 }
             }
 
             ScrollView {
-                id: affixScroll
+                id: prefixScroll
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                Layout.minimumHeight: 95
                 clip: true
                 ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
-
                 ColumnLayout {
-                    width: affixScroll.availableWidth
-                    spacing: 14
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 7
-                        RowLayout {
+                    width: prefixScroll.availableWidth
+                    spacing: 5
+                    Repeater {
+                        model: root.editor.prefixSlots
+                        delegate: AffixSlot {
+                            required property var modelData
                             Layout.fillWidth: true
-                            Text { text: "Prefix"; color: "#DDE7EB"; font.pixelSize: 13; font.weight: Font.DemiBold }
-                            Text { Layout.fillWidth: true; text: root.controller.prefixCountLabel; color: "#869BA5"; font.pixelSize: 11 }
-                            Text { text: root.controller.prefixHeaderHint; color: "#728893"; font.pixelSize: 10 }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 5
-                            Repeater {
-                                model: root.controller.prefixAffixes
-                                delegate: AffixRow {
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    entry: modelData
-                                    selected: root.controller.selectedInstanceId === modelData.id
-                                    onActivated: (instanceId) => root.controller.selectAffixInstance(instanceId)
-                                }
-                            }
-                            Text { visible: root.controller.prefixAffixes.length === 0; Layout.fillWidth: true; text: "No prefixes on this item yet."; color: "#758B96"; font.pixelSize: 11; leftPadding: 4 }
-                        }
-
-                        Button {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 34
-                            id: addPrefixButton
-                            text: "Add prefix"
-                            onClicked: root.controller.beginAddAffix("prefix")
-                            background: Rectangle { radius: 5; color: "#111F29"; border.color: "#344B58" }
-                            contentItem: Text { text: addPrefixButton.text; color: "#9FC1C9"; font.pixelSize: 11; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                            slot: modelData
+                            group: "prefix"
+                            selectedInstanceId: root.browser.selectedInstanceId
+                            onEditRequested: (instanceId) => root.browser.selectAffixInstance(instanceId)
+                            onAddRequested: (group, index) => root.browser.beginAddAffixAtSlot(group, index)
                         }
                     }
-
-                    Rectangle { Layout.fillWidth: true; height: 1; color: "#22343F" }
-
-                    ColumnLayout {
+                    Button {
+                        visible: root.editor.prefixHeaderHint.indexOf("unknown") >= 0
                         Layout.fillWidth: true
-                        spacing: 7
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Text { text: "Suffix"; color: "#DDE7EB"; font.pixelSize: 13; font.weight: Font.DemiBold }
-                            Text { Layout.fillWidth: true; text: root.controller.suffixCountLabel; color: "#869BA5"; font.pixelSize: 11 }
-                            Text { text: root.controller.suffixHeaderHint; color: "#728893"; font.pixelSize: 10 }
-                        }
+                        text: "+  Add prefix"
+                        onClicked: root.browser.beginAddAffix("prefix")
+                        background: Rectangle { radius: Theme.radiusSmall; color: "#0C1B25"; border.color: Theme.border }
+                        contentItem: Text { text: parent.text; color: Theme.accent; font.pixelSize: Theme.secondarySize; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    }
+                }
+            }
 
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 5
-                            Repeater {
-                                model: root.controller.suffixAffixes
-                                delegate: AffixRow {
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    entry: modelData
-                                    selected: root.controller.selectedInstanceId === modelData.id
-                                    onActivated: (instanceId) => root.controller.selectAffixInstance(instanceId)
-                                }
-                            }
-                            Text { visible: root.controller.suffixAffixes.length === 0; Layout.fillWidth: true; text: "No suffixes on this item yet."; color: "#758B96"; font.pixelSize: 11; leftPadding: 4 }
-                        }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSoft }
 
-                        Button {
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                Text { text: "Suffixes"; color: Theme.text; font.pixelSize: 15; font.weight: Font.DemiBold }
+                Text { text: root.editor.suffixCountLabel; color: Theme.textSecondary; font.pixelSize: Theme.secondarySize }
+                Item { Layout.fillWidth: true }
+                Text { text: root.editor.suffixHeaderHint; color: Theme.textMuted; font.pixelSize: 10 }
+            }
+
+            ScrollView {
+                id: suffixScroll
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.minimumHeight: 95
+                clip: true
+                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+                ColumnLayout {
+                    width: suffixScroll.availableWidth
+                    spacing: 5
+                    Repeater {
+                        model: root.editor.suffixSlots
+                        delegate: AffixSlot {
+                            required property var modelData
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 34
-                            id: addSuffixButton
-                            text: "Add suffix"
-                            onClicked: root.controller.beginAddAffix("suffix")
-                            background: Rectangle { radius: 5; color: "#111F29"; border.color: "#344B58" }
-                            contentItem: Text { text: addSuffixButton.text; color: "#9FC1C9"; font.pixelSize: 11; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                            slot: modelData
+                            group: "suffix"
+                            selectedInstanceId: root.browser.selectedInstanceId
+                            onEditRequested: (instanceId) => root.browser.selectAffixInstance(instanceId)
+                            onAddRequested: (group, index) => root.browser.beginAddAffixAtSlot(group, index)
                         }
+                    }
+                    Button {
+                        visible: root.editor.suffixHeaderHint.indexOf("unknown") >= 0
+                        Layout.fillWidth: true
+                        text: "+  Add suffix"
+                        onClicked: root.browser.beginAddAffix("suffix")
+                        background: Rectangle { radius: Theme.radiusSmall; color: "#0C1B25"; border.color: Theme.border }
+                        contentItem: Text { text: parent.text; color: Theme.accent; font.pixelSize: Theme.secondarySize; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                     }
                 }
             }
@@ -239,8 +267,35 @@ RowLayout {
     AffixSelector {
         Layout.fillHeight: true
         Layout.fillWidth: true
-        Layout.minimumWidth: 455
-        Layout.preferredWidth: 1.08
-        controller: root.controller
+        Layout.minimumWidth: 470
+        Layout.preferredWidth: 0.58
+        browser: root.browser
+    }
+
+    Dialog {
+        id: incompatibleConfirm
+        modal: true
+        title: "Remove incompatible affixes?"
+        anchors.centerIn: Overlay.overlay
+        width: Math.min(400, root.width - 40)
+        height: 190
+        standardButtons: Dialog.NoButton
+        background: Rectangle { radius: Theme.radiusMedium; color: Theme.surface; border.color: Theme.border }
+        contentItem: Text {
+            text: "This removes the listed affixes from the current equipment. The change can be undone by closing without saving."
+            color: Theme.textSecondary
+            font.pixelSize: Theme.bodySize
+            wrapMode: Text.WordWrap
+        }
+        footer: RowLayout {
+            Item { Layout.fillWidth: true }
+            Button { text: "Cancel"; onClicked: incompatibleConfirm.close() }
+            Button {
+                text: "Remove affixes"
+                onClicked: { root.editor.removeIncompatibleAffixes(); incompatibleConfirm.close() }
+                background: Rectangle { radius: Theme.radiusSmall; color: Theme.gold; border.color: Theme.goldBright }
+                contentItem: Text { text: parent.text; color: "#152029"; font.weight: Font.Bold; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+            }
+        }
     }
 }

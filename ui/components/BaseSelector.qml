@@ -1,82 +1,86 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../theme/Theme.js" as Theme
 
-ColumnLayout {
+RowLayout {
     id: root
-    required property var controller
+    required property var editor
     spacing: 8
 
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: 10
-
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 5
-            Text { text: "CATEGORY"; color: "#8398A5"; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.1 }
-            ComboBox {
-                id: categoryBox
-                Layout.fillWidth: true
-                model: root.controller.baseCategories
-                textRole: "name"
-                currentIndex: {
-                    var list = root.controller.baseCategories
-                    for (var i = 0; i < list.length; ++i) if (list[i].id === root.controller.selectedBaseCategory) return i
-                    return 0
-                }
-                onActivated: (index) => root.controller.setBaseCategory(root.controller.baseCategories[index].id)
-                contentItem: Text {
-                    anchors.fill: parent
-                    anchors.leftMargin: 12
-                    anchors.rightMargin: 30
-                    text: categoryBox.displayText
-                    color: "#EAF1F4"
-                    font.pixelSize: 13
-                    verticalAlignment: Text.AlignVCenter
-                    elide: Text.ElideRight
-                }
-                background: Rectangle { radius: 6; color: "#101C26"; border.color: categoryBox.activeFocus ? "#68C9D4" : "#324856" }
-                indicator: Image { x: categoryBox.width - width - 13; anchors.verticalCenter: parent.verticalCenter; source: "../../assets/icons/down-chevron.svg"; width: 12; height: 12 }
-            }
+    ComboBox {
+        id: categoryBox
+        Layout.preferredWidth: 126
+        Layout.preferredHeight: 38
+        model: root.editor.baseCategories
+        textRole: "name"
+        currentIndex: {
+            var list = root.editor.baseCategories
+            for (var i = 0; i < list.length; ++i)
+                if (list[i].id === root.editor.selectedBaseCategory) return i
+            return 0
         }
-
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 5
-            Text { text: "EQUIPMENT BASE"; color: "#8398A5"; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.1 }
-            ComboBox {
-                id: baseBox
-                Layout.fillWidth: true
-                model: root.controller.baseOptions
-                textRole: "name"
-                currentIndex: {
-                    var list = root.controller.baseOptions
-                    for (var i = 0; i < list.length; ++i) if (list[i].id === root.controller.baseId) return i
-                    return 0
-                }
-                onActivated: (index) => root.controller.setBase(root.controller.baseOptions[index].id)
-                contentItem: Text {
-                    anchors.fill: parent
-                    anchors.leftMargin: 12
-                    anchors.rightMargin: 30
-                    text: baseBox.displayText
-                    color: "#EAF1F4"
-                    font.pixelSize: 13
-                    verticalAlignment: Text.AlignVCenter
-                    elide: Text.ElideRight
-                }
-                background: Rectangle { radius: 6; color: "#101C26"; border.color: baseBox.activeFocus ? "#68C9D4" : "#324856" }
-                indicator: Image { x: baseBox.width - width - 13; anchors.verticalCenter: parent.verticalCenter; source: "../../assets/icons/down-chevron.svg"; width: 12; height: 12 }
-            }
+        onActivated: (index) => root.editor.setBaseCategory(root.editor.baseCategories[index].id)
+        contentItem: Text {
+            leftPadding: 11
+            rightPadding: 25
+            text: categoryBox.displayText
+            color: Theme.text
+            font.pixelSize: Theme.bodySize
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
+        background: Rectangle {
+            radius: Theme.radiusSmall
+            color: Theme.surfaceInset
+            border.color: categoryBox.activeFocus ? Theme.accent : Theme.borderSoft
+        }
+        indicator: Image {
+            x: categoryBox.width - width - 10
+            anchors.verticalCenter: parent.verticalCenter
+            source: "../../assets/icons/down-chevron.svg"
+            width: 11
+            height: 11
         }
     }
 
-    Text {
+    ComboBox {
+        id: baseBox
         Layout.fillWidth: true
-        text: root.controller.equipmentType + " · " + root.controller.characterRequirementText + " · " + root.controller.baseVerificationText
-        color: "#94A8B3"
-        font.pixelSize: 11
-        elide: Text.ElideRight
+        Layout.minimumWidth: 150
+        Layout.preferredHeight: 38
+        model: root.editor.baseOptions
+        textRole: "name"
+        currentIndex: {
+            var list = root.editor.baseOptions
+            for (var i = 0; i < list.length; ++i)
+                if (list[i].id === root.editor.baseId) return i
+            return 0
+        }
+        onActivated: (index) => root.editor.setBase(root.editor.baseOptions[index].id)
+        contentItem: Text {
+            leftPadding: 11
+            rightPadding: 25
+            text: baseBox.displayText
+            color: Theme.text
+            font.pixelSize: Theme.bodySize
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
+        background: Rectangle {
+            radius: Theme.radiusSmall
+            color: Theme.surfaceInset
+            border.color: baseBox.activeFocus ? Theme.accent : Theme.borderSoft
+        }
+        indicator: Image {
+            x: baseBox.width - width - 10
+            anchors.verticalCenter: parent.verticalCenter
+            source: "../../assets/icons/down-chevron.svg"
+            width: 11
+            height: 11
+        }
+        ToolTip.visible: hovered
+        ToolTip.text: root.editor.equipmentType + " · " + root.editor.characterRequirementText + " · " + root.editor.baseVerificationText
+        ToolTip.delay: 500
     }
 }
