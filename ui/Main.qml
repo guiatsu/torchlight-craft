@@ -12,6 +12,7 @@ ApplicationWindow {
     title: "Torchlight Craft Planner"
     color: "#09131D"
     property var appController: controller
+    property bool closeApproved: false
 
     background: Rectangle {
         color: "#09131D"
@@ -152,6 +153,7 @@ ApplicationWindow {
     Dialog {
         id: unsavedDialog
         modal: true
+        closePolicy: Popup.NoAutoClose
         title: "Unsaved changes"
         anchors.centerIn: Overlay.overlay
         width: 430
@@ -370,11 +372,14 @@ ApplicationWindow {
     Connections {
         target: mainWindow.appController
         function onConfirmUnsaved() { unsavedDialog.open() }
-        function onCloseConfirmed() { Qt.quit() }
+        function onCloseConfirmed() {
+            mainWindow.closeApproved = true
+            mainWindow.close()
+        }
     }
 
     onClosing: function(close) {
-        if (mainWindow.appController.isDirty) {
+        if (mainWindow.appController.isDirty && !mainWindow.closeApproved) {
             close.accepted = false
             mainWindow.appController.requestClose()
         }

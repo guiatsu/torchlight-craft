@@ -60,9 +60,24 @@ class AppController(QObject):
         self._set_default_selection()
 
     def _set_default_selection(self) -> None:
-        candidates = self._matching_affixes()
+        candidates = [
+            definition
+            for definition in self._matching_affixes()
+            if not self._definition_is_on_item(definition.id)
+        ]
+        if not candidates:
+            candidates = self._matching_affixes()
         if candidates:
             self._select_definition(candidates[0].id)
+
+    def _definition_is_on_item(
+        self, definition_id: str, excluding_instance_id: str | None = None
+    ) -> bool:
+        return any(
+            instance.definition_id == definition_id
+            and instance.id != excluding_instance_id
+            for instance in self._current_item.affixes
+        )
 
     @staticmethod
     def _enum_value(value: AffixGroup | AffixCategory) -> str:
@@ -267,6 +282,14 @@ class AppController(QObject):
     def selectedDefinitionId(self) -> str:
         return self._selected_definition_id or ""
 
+    @Property(bool, notify=selectionChanged)
+    def selectedDefinitionAlreadyAdded(self) -> bool:
+        if self._selected_definition_id is None:
+            return False
+        return self._definition_is_on_item(
+            self._selected_definition_id, self._selected_instance_id
+        )
+
     @Property(str, notify=selectionChanged)
     def selectedDefinitionName(self) -> str:
         definition = self._selected_definition()
@@ -346,8 +369,10 @@ class AppController(QObject):
             "minimumItemLevel": base.minimum_item_level,
         }
 
-    @staticmethod
-    def _definition_view(definition: AffixDefinition) -> dict[str, object]:
+    def _definition_view(self, definition: AffixDefinition) -> dict[str, object]:
+        already_added = self._definition_is_on_item(
+            definition.id, self._selected_instance_id
+        )
         return {
             "id": definition.id,
             "name": definition.name,
@@ -356,6 +381,7 @@ class AppController(QObject):
             "compatibilityStatus": definition.compatibility_status,
             "verificationStatus": definition.verification_status,
             "tierSummary": " · ".join(tier.id for tier in definition.tiers),
+            "alreadyAdded": already_added,
         }
 
     def _instance_view(self, instance: AffixInstance) -> dict[str, object]:
@@ -689,6 +715,10 @@ class AppController(QObject):
             self._set_notice("Affix values must be 120 characters or fewer.", "error")
             return
 
+        if self._definition_is_on_item(definition.id, self._selected_instance_id):
+            self._set_notice(f"{definition.name} is already on this equipment.", "error")
+            return
+
         if self._selected_instance_id:
             instance = next(
                 (affix for affix in self._current_item.affixes if affix.id == self._selected_instance_id),
@@ -781,6 +811,8 @@ class AppController(QObject):
 
     @Slot(str)
     def resolveUnsaved(self, choice: str) -> None:
+        if choice not in {"cancel", "discard", "save"}:
+            return
         if choice == "cancel":
             self._pending_action = None
             return

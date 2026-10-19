@@ -118,6 +118,8 @@ Rectangle {
             Text { text: "LISTED TIERS"; color: "#8399A5"; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.1 }
         }
 
+        ButtonGroup { id: affixChoiceGroup }
+
         ListView {
             id: affixList
             Layout.fillWidth: true
@@ -126,21 +128,52 @@ Rectangle {
             spacing: 6
             model: root.controller.availableAffixes
             ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
-            delegate: Rectangle {
+            delegate: RadioButton {
                 id: candidate
                 required property var modelData
                 width: affixList.width - 8
-                height: candidateLayout.implicitHeight + 16
-                radius: 5
-                color: root.controller.selectedDefinitionId === modelData.id ? "#243A46" : "#17232E"
-                border.color: root.controller.selectedDefinitionId === modelData.id ? "#56BFCC" : "#324652"
-                border.width: root.controller.selectedDefinitionId === modelData.id ? 1.3 : 1
+                height: candidateContent.implicitHeight + 16
+                checked: root.controller.selectedDefinitionId === modelData.id
+                enabled: !modelData.alreadyAdded
+                ButtonGroup.group: affixChoiceGroup
+                onClicked: root.controller.selectDefinition(modelData.id)
+
+                background: Rectangle {
+                    radius: 5
+                    color: candidate.checked ? "#243A46" : "#17232E"
+                    border.color: candidate.checked ? "#56BFCC" : "#324652"
+                    border.width: candidate.checked ? 1.3 : 1
+                    opacity: candidate.enabled ? 1 : 0.62
+                }
+
+                indicator: Item {
+                    width: 20
+                    height: 20
+                    x: candidate.width - width - 13
+                    y: (candidate.height - height) / 2
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: width / 2
+                        color: "#101B24"
+                        border.color: candidate.checked ? "#66D0DC" : "#8999A0"
+                        border.width: candidate.checked ? 2 : 1
+                    }
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 8
+                        height: 8
+                        radius: 4
+                        visible: candidate.checked
+                        color: "#66D0DC"
+                    }
+                }
 
                 RowLayout {
-                    id: candidateLayout
-                    anchors.fill: parent
+                    id: candidateContent
+                    anchors.fill: candidate
                     anchors.leftMargin: 12
-                    anchors.rightMargin: 12
+                    anchors.rightMargin: 44
                     anchors.topMargin: 8
                     anchors.bottomMargin: 8
                     spacing: 10
@@ -166,20 +199,14 @@ Rectangle {
                         }
                         Text {
                             Layout.fillWidth: true
-                            text: modelData.category + " · Compatibility provisional"
-                            color: "#A0B1B8"
+                            text: modelData.alreadyAdded ? "Already on this item" : modelData.category + " · Compatibility provisional"
+                            color: modelData.alreadyAdded ? "#D8B771" : "#A0B1B8"
                             font.pixelSize: 10
                             elide: Text.ElideRight
                         }
                     }
 
                     Text { text: modelData.tierSummary; color: "#E8C16E"; font.pixelSize: 10; font.weight: Font.Bold }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.controller.selectDefinition(modelData.id)
                 }
             }
 
@@ -288,8 +315,8 @@ Rectangle {
                     id: commitAffixButton
                     Layout.preferredWidth: 132
                     Layout.preferredHeight: 40
-                    text: root.controller.isEditingAffix ? "Update affix" : "Add affix"
-                    enabled: root.controller.selectedDefinitionId.length > 0 && root.controller.selectedTierEligible
+                    text: root.controller.selectedDefinitionAlreadyAdded ? "Already added" : root.controller.isEditingAffix ? "Update affix" : "Add affix"
+                    enabled: root.controller.selectedDefinitionId.length > 0 && root.controller.selectedTierEligible && !root.controller.selectedDefinitionAlreadyAdded
                     onClicked: root.controller.addOrUpdateAffix()
                     background: Rectangle {
                         radius: 5

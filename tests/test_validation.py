@@ -50,6 +50,19 @@ def test_duplicate_affix_instance_ids_are_rejected():
     assert any("unique instance ID" in error for error in validate_item(item, catalog.bases, catalog.affixes))
 
 
+def test_duplicate_affix_definitions_are_rejected():
+    catalog = _catalog()
+    definition = catalog.affixes["cane-physical-damage-prefix"]
+    first = AffixInstance.create(definition, definition.tiers[0])
+    second = AffixInstance.create(definition, definition.tiers[0])
+    item = EquipmentItem(affixes=[first, second])
+
+    assert any(
+        "can only be added once" in error
+        for error in validate_item(item, catalog.bases, catalog.affixes)
+    )
+
+
 def test_screenshot_slot_count_is_provisional_and_enforced_only_for_that_base():
     catalog = _catalog()
     definition = catalog.affixes["cane-physical-damage-prefix"]

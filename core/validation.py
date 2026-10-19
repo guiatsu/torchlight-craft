@@ -38,6 +38,17 @@ def validate_item(
     if len(instance_ids) != len(set(instance_ids)):
         errors.append("Each affix needs a unique instance ID.")
 
+    definition_ids = [affix.definition_id for affix in item.affixes]
+    duplicate_definition_ids = {
+        definition_id
+        for definition_id, count in Counter(definition_ids).items()
+        if count > 1
+    }
+    for definition_id in sorted(duplicate_definition_ids):
+        definition = affixes.get(definition_id)
+        name = definition.name if definition else definition_id
+        errors.append(f"{name} can only be added once to an equipment item.")
+
     counts = Counter(affix.group.value for affix in item.affixes)
     if base is not None:
         for group, limit in (("prefix", base.prefix_limit), ("suffix", base.suffix_limit)):
