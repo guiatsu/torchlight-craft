@@ -46,7 +46,7 @@ ApplicationWindow {
             ColumnLayout {
                 spacing: 1
                 Text { text: "Torchlight Craft Planner"; color: "#E9EDEF"; font.pixelSize: 15; font.weight: Font.DemiBold }
-                Text { text: "ITEM EDITOR · VERSION 0.1.1"; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1.1 }
+                Text { text: "ITEM EDITOR · VERSION " + mainWindow.appController.appVersion; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1.1 }
             }
 
             Rectangle { Layout.fillWidth: true; color: "transparent" }

@@ -1,7 +1,7 @@
 {
   "categories": [
     {
-      "affixes_found": 15,
+      "affixes_found": 36,
       "bases_announced": 28,
       "bases_classified": 24,
       "bases_discovered": 28,
@@ -19,6 +19,7 @@
       "explicit_zero_weights": 70,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -32,7 +33,7 @@
       "weights_imported": 256
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 38,
       "bases_announced": 28,
       "bases_classified": 24,
       "bases_discovered": 28,
@@ -50,6 +51,7 @@
       "explicit_zero_weights": 70,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 10,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -63,7 +65,7 @@
       "weights_imported": 247
     },
     {
-      "affixes_found": 18,
+      "affixes_found": 38,
       "bases_announced": 28,
       "bases_classified": 24,
       "bases_discovered": 28,
@@ -81,6 +83,7 @@
       "explicit_zero_weights": 74,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -94,7 +97,7 @@
       "weights_imported": 260
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 31,
       "bases_announced": 30,
       "bases_classified": 25,
       "bases_discovered": 30,
@@ -112,6 +115,7 @@
       "explicit_zero_weights": 62,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -125,7 +129,7 @@
       "weights_imported": 238
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 36,
       "bases_announced": 24,
       "bases_classified": 22,
       "bases_discovered": 24,
@@ -143,6 +147,7 @@
       "explicit_zero_weights": 70,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -156,7 +161,7 @@
       "weights_imported": 257
     },
     {
-      "affixes_found": 12,
+      "affixes_found": 45,
       "bases_announced": 36,
       "bases_classified": 28,
       "bases_discovered": 36,
@@ -174,6 +179,7 @@
       "explicit_zero_weights": 88,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -187,7 +193,7 @@
       "weights_imported": 293
     },
     {
-      "affixes_found": 9,
+      "affixes_found": 30,
       "bases_announced": 20,
       "bases_classified": 20,
       "bases_discovered": 20,
@@ -203,6 +209,7 @@
       "explicit_zero_weights": 60,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 7,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -216,7 +223,7 @@
       "weights_imported": 228
     },
     {
-      "affixes_found": 10,
+      "affixes_found": 38,
       "bases_announced": 24,
       "bases_classified": 22,
       "bases_discovered": 24,
@@ -234,6 +241,7 @@
       "explicit_zero_weights": 76,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -247,7 +255,7 @@
       "weights_imported": 226
     },
     {
-      "affixes_found": 13,
+      "affixes_found": 27,
       "bases_announced": 22,
       "bases_classified": 21,
       "bases_discovered": 22,
@@ -265,6 +273,7 @@
       "explicit_zero_weights": 54,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -278,7 +287,7 @@
       "weights_imported": 207
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 35,
       "bases_announced": 28,
       "bases_classified": 24,
       "bases_discovered": 28,
@@ -296,6 +305,7 @@
       "explicit_zero_weights": 70,
       "failures": 0,
       "group_label": "One-handed",
+      "legacy_family_ids_split": 7,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -309,7 +319,7 @@
       "weights_imported": 257
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 38,
       "bases_announced": 32,
       "bases_classified": 26,
       "bases_discovered": 32,
@@ -327,6 +337,7 @@
       "explicit_zero_weights": 76,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -340,7 +351,7 @@
       "weights_imported": 276
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 33,
       "bases_announced": 22,
       "bases_classified": 21,
       "bases_discovered": 22,
@@ -358,6 +369,7 @@
       "explicit_zero_weights": 66,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 7,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -371,7 +383,7 @@
       "weights_imported": 249
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 36,
       "bases_announced": 26,
       "bases_classified": 23,
       "bases_discovered": 26,
@@ -389,6 +401,7 @@
       "explicit_zero_weights": 72,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -402,7 +415,7 @@
       "weights_imported": 267
     },
     {
-      "affixes_found": 21,
+      "affixes_found": 43,
       "bases_announced": 24,
       "bases_classified": 22,
       "bases_discovered": 24,
@@ -420,6 +433,7 @@
       "explicit_zero_weights": 82,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 10,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -433,7 +447,7 @@
       "weights_imported": 274
     },
     {
-      "affixes_found": 18,
+      "affixes_found": 33,
       "bases_announced": 20,
       "bases_classified": 20,
       "bases_discovered": 20,
@@ -449,6 +463,7 @@
       "explicit_zero_weights": 66,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -462,7 +477,7 @@
       "weights_imported": 238
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 33,
       "bases_announced": 30,
       "bases_classified": 25,
       "bases_discovered": 30,
@@ -480,6 +495,7 @@
       "explicit_zero_weights": 64,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 7,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -493,7 +509,7 @@
       "weights_imported": 235
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 34,
       "bases_announced": 26,
       "bases_classified": 23,
       "bases_discovered": 26,
@@ -511,6 +527,7 @@
       "explicit_zero_weights": 68,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 7,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -524,7 +541,7 @@
       "weights_imported": 248
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 34,
       "bases_announced": 24,
       "bases_classified": 22,
       "bases_discovered": 24,
@@ -542,6 +559,7 @@
       "explicit_zero_weights": 68,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -555,7 +573,7 @@
       "weights_imported": 246
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 34,
       "bases_announced": 20,
       "bases_classified": 20,
       "bases_discovered": 20,
@@ -571,6 +589,7 @@
       "explicit_zero_weights": 68,
       "failures": 0,
       "group_label": "Two-handed",
+      "legacy_family_ids_split": 7,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -584,7 +603,7 @@
       "weights_imported": 250
     },
     {
-      "affixes_found": 18,
+      "affixes_found": 39,
       "bases_announced": 44,
       "bases_classified": 28,
       "bases_discovered": 44,
@@ -602,6 +621,7 @@
       "explicit_zero_weights": 78,
       "failures": 0,
       "group_label": "Helmet",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -615,7 +635,7 @@
       "weights_imported": 285
     },
     {
-      "affixes_found": 18,
+      "affixes_found": 39,
       "bases_announced": 32,
       "bases_classified": 22,
       "bases_discovered": 32,
@@ -633,6 +653,7 @@
       "explicit_zero_weights": 78,
       "failures": 0,
       "group_label": "Helmet",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -646,7 +667,7 @@
       "weights_imported": 285
     },
     {
-      "affixes_found": 18,
+      "affixes_found": 40,
       "bases_announced": 38,
       "bases_classified": 25,
       "bases_discovered": 38,
@@ -664,6 +685,7 @@
       "explicit_zero_weights": 80,
       "failures": 0,
       "group_label": "Helmet",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -677,7 +699,7 @@
       "weights_imported": 293
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 75,
       "bases_announced": 74,
       "bases_classified": 1,
       "bases_discovered": 74,
@@ -694,6 +716,7 @@
       "explicit_zero_weights": 67,
       "failures": 0,
       "group_label": "Helmet",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -707,7 +730,7 @@
       "weights_imported": 366
     },
     {
-      "affixes_found": 18,
+      "affixes_found": 41,
       "bases_announced": 49,
       "bases_classified": 31,
       "bases_discovered": 49,
@@ -725,6 +748,7 @@
       "explicit_zero_weights": 80,
       "failures": 0,
       "group_label": "Chest Armor",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -738,7 +762,7 @@
       "weights_imported": 274
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 42,
       "bases_announced": 30,
       "bases_classified": 21,
       "bases_discovered": 30,
@@ -756,6 +780,7 @@
       "explicit_zero_weights": 80,
       "failures": 0,
       "group_label": "Chest Armor",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -769,7 +794,7 @@
       "weights_imported": 276
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 40,
       "bases_announced": 56,
       "bases_classified": 35,
       "bases_discovered": 56,
@@ -787,6 +812,7 @@
       "explicit_zero_weights": 78,
       "failures": 0,
       "group_label": "Chest Armor",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -800,7 +826,7 @@
       "weights_imported": 274
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 65,
       "bases_announced": 83,
       "bases_classified": 1,
       "bases_discovered": 83,
@@ -817,6 +843,7 @@
       "explicit_zero_weights": 62,
       "failures": 0,
       "group_label": "Chest Armor",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -830,7 +857,7 @@
       "weights_imported": 330
     },
     {
-      "affixes_found": 12,
+      "affixes_found": 33,
       "bases_announced": 42,
       "bases_classified": 27,
       "bases_discovered": 42,
@@ -848,6 +875,7 @@
       "explicit_zero_weights": 65,
       "failures": 0,
       "group_label": "Gloves",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -861,7 +889,7 @@
       "weights_imported": 240
     },
     {
-      "affixes_found": 12,
+      "affixes_found": 34,
       "bases_announced": 42,
       "bases_classified": 27,
       "bases_discovered": 42,
@@ -879,6 +907,7 @@
       "explicit_zero_weights": 67,
       "failures": 0,
       "group_label": "Gloves",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -892,7 +921,7 @@
       "weights_imported": 243
     },
     {
-      "affixes_found": 11,
+      "affixes_found": 33,
       "bases_announced": 38,
       "bases_classified": 25,
       "bases_discovered": 38,
@@ -910,6 +939,7 @@
       "explicit_zero_weights": 66,
       "failures": 0,
       "group_label": "Gloves",
+      "legacy_family_ids_split": 10,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -923,7 +953,7 @@
       "weights_imported": 240
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 63,
       "bases_announced": 83,
       "bases_classified": 1,
       "bases_discovered": 83,
@@ -940,6 +970,7 @@
       "explicit_zero_weights": 61,
       "failures": 0,
       "group_label": "Gloves",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -953,7 +984,7 @@
       "weights_imported": 337
     },
     {
-      "affixes_found": 11,
+      "affixes_found": 42,
       "bases_announced": 30,
       "bases_classified": 21,
       "bases_discovered": 30,
@@ -971,6 +1002,7 @@
       "explicit_zero_weights": 84,
       "failures": 0,
       "group_label": "Boots",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -984,7 +1016,7 @@
       "weights_imported": 268
     },
     {
-      "affixes_found": 11,
+      "affixes_found": 42,
       "bases_announced": 42,
       "bases_classified": 27,
       "bases_discovered": 42,
@@ -1002,6 +1034,7 @@
       "explicit_zero_weights": 84,
       "failures": 0,
       "group_label": "Boots",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -1015,7 +1048,7 @@
       "weights_imported": 268
     },
     {
-      "affixes_found": 12,
+      "affixes_found": 44,
       "bases_announced": 36,
       "bases_classified": 24,
       "bases_discovered": 36,
@@ -1033,6 +1066,7 @@
       "explicit_zero_weights": 88,
       "failures": 0,
       "group_label": "Boots",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -1046,7 +1080,7 @@
       "weights_imported": 280
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 89,
       "bases_announced": 91,
       "bases_classified": 1,
       "bases_discovered": 91,
@@ -1063,6 +1097,7 @@
       "explicit_zero_weights": 80,
       "failures": 0,
       "group_label": "Boots",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1076,7 +1111,7 @@
       "weights_imported": 371
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 90,
       "bases_announced": 91,
       "bases_classified": 1,
       "bases_discovered": 91,
@@ -1093,6 +1128,7 @@
       "explicit_zero_weights": 80,
       "failures": 0,
       "group_label": "Boots",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1106,7 +1142,7 @@
       "weights_imported": 368
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 34,
       "bases_announced": 20,
       "bases_classified": 16,
       "bases_discovered": 20,
@@ -1124,6 +1160,7 @@
       "explicit_zero_weights": 66,
       "failures": 0,
       "group_label": "Shield",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -1137,7 +1174,7 @@
       "weights_imported": 201
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 34,
       "bases_announced": 18,
       "bases_classified": 15,
       "bases_discovered": 18,
@@ -1155,6 +1192,7 @@
       "explicit_zero_weights": 66,
       "failures": 0,
       "group_label": "Shield",
+      "legacy_family_ids_split": 8,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -1168,7 +1206,7 @@
       "weights_imported": 201
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 35,
       "bases_announced": 18,
       "bases_classified": 15,
       "bases_discovered": 18,
@@ -1186,6 +1224,7 @@
       "explicit_zero_weights": 68,
       "failures": 0,
       "group_label": "Shield",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 10,
       "source_table_rows_imported": 10,
@@ -1199,7 +1238,7 @@
       "weights_imported": 214
     },
     {
-      "affixes_found": 16,
+      "affixes_found": 48,
       "bases_announced": 111,
       "bases_classified": 65,
       "bases_discovered": 111,
@@ -1217,6 +1256,7 @@
       "explicit_zero_weights": 88,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 11,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1230,7 +1270,7 @@
       "weights_imported": 290
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 72,
       "bases_announced": 74,
       "bases_classified": 1,
       "bases_discovered": 74,
@@ -1247,6 +1287,7 @@
       "explicit_zero_weights": 64,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1260,7 +1301,7 @@
       "weights_imported": 321
     },
     {
-      "affixes_found": 18,
+      "affixes_found": 52,
       "bases_announced": 81,
       "bases_classified": 54,
       "bases_discovered": 81,
@@ -1278,6 +1319,7 @@
       "explicit_zero_weights": 94,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 11,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1291,7 +1333,7 @@
       "weights_imported": 303
     },
     {
-      "affixes_found": 10,
+      "affixes_found": 45,
       "bases_announced": 10,
       "bases_classified": 8,
       "bases_discovered": 10,
@@ -1309,6 +1351,7 @@
       "explicit_zero_weights": 80,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 9,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1322,7 +1365,7 @@
       "weights_imported": 282
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 90,
       "bases_announced": 91,
       "bases_classified": 1,
       "bases_discovered": 91,
@@ -1339,6 +1382,7 @@
       "explicit_zero_weights": 79,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1352,7 +1396,7 @@
       "weights_imported": 384
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 84,
       "bases_announced": 91,
       "bases_classified": 1,
       "bases_discovered": 91,
@@ -1369,6 +1413,7 @@
       "explicit_zero_weights": 74,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1382,7 +1427,7 @@
       "weights_imported": 363
     },
     {
-      "affixes_found": 17,
+      "affixes_found": 42,
       "bases_announced": 74,
       "bases_classified": 43,
       "bases_discovered": 74,
@@ -1400,6 +1445,7 @@
       "explicit_zero_weights": 78,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 11,
       "missing_weights": 0,
       "source_table_rows_discovered": 98,
       "source_table_rows_imported": 98,
@@ -1413,7 +1459,7 @@
       "weights_imported": 262
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 87,
       "bases_announced": 91,
       "bases_classified": 1,
       "bases_discovered": 91,
@@ -1430,6 +1476,7 @@
       "explicit_zero_weights": 79,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1443,7 +1490,7 @@
       "weights_imported": 369
     },
     {
-      "affixes_found": 6,
+      "affixes_found": 87,
       "bases_announced": 91,
       "bases_classified": 1,
       "bases_discovered": 91,
@@ -1460,6 +1507,7 @@
       "explicit_zero_weights": 78,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 6,
       "missing_weights": 0,
       "source_table_rows_discovered": 0,
       "source_table_rows_imported": 0,
@@ -1489,6 +1537,7 @@
       "explicit_zero_weights": 0,
       "failures": 0,
       "group_label": "",
+      "legacy_family_ids_split": 0,
       "missing_weights": 0,
       "source_table_rows_discovered": 393,
       "source_table_rows_imported": 393,
@@ -1509,13 +1558,14 @@
   },
   "coverage_definition": "Imported base, affix-tier and non-affix table-row records divided by records discovered in fetched category pages. This is record retention, not game-data verification.",
   "coverage_percent": 100.0,
-  "generated_at": "2026-10-19T23:15:22+00:00",
+  "generated_at": "2026-10-20T00:20:41+00:00",
   "overall_status": "partial",
   "schema_version": 1,
   "season_reference": "SS14 — Tartarus; source data remains community-unverified",
   "source": "TLIDB",
   "summary": {
-    "affix_entries_discovered": 642,
+    "affix_entries_discovered": 2233,
+    "canonical_affix_families_imported": 2233,
     "categories_additional_on_site": [
       "Ethereal Prism"
     ],
@@ -1530,7 +1580,9 @@
     "equipment_bases_discovered": 2194,
     "equipment_bases_imported": 2194,
     "explicit_zero_weights": 3516,
+    "family_grouping_explanation": "The previous importer treated a broad source comment as one family. The new importer also checks the source modifier family and normalized property text, so semantically different affixes receive separate canonical family IDs. The old source key remains available as a legacy alias; no tier rows are removed.",
     "item_detail_pages_inspected": 37,
+    "legacy_family_ids_split": 382,
     "missing_records": 0,
     "missing_weights": 0,
     "non_affix_source_table_rows_discovered": 831,

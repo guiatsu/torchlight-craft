@@ -156,6 +156,11 @@ def build_reports(
         source_rows_discovered = len(page.source_rows)
         source_rows_imported = db.get("source_table_rows_imported", 0)
         affixes = len({tier.family_id for tier in page.tiers})
+        canonical_ids_by_legacy: dict[str, set[str]] = {}
+        for tier in page.tiers:
+            if tier.legacy_family_id:
+                canonical_ids_by_legacy.setdefault(tier.legacy_family_id, set()).add(tier.family_id)
+        split_legacy_families = sum(len(canonical_ids) > 1 for canonical_ids in canonical_ids_by_legacy.values())
         weights_imported = sum(tier.weight_raw is not None for tier in page.tiers)
         explicit_zero_weights = sum(tier.weight_raw == "0" for tier in page.tiers)
         missing_weights = sum(tier.weight_parse_status == "missing" for tier in page.tiers)
@@ -190,6 +195,7 @@ def build_reports(
             "bases_classified": classified,
             "crafting_class_counts": dict(Counter(base.crafting_class for base in page.bases)),
             "affixes_found": affixes,
+            "legacy_family_ids_split": split_legacy_families,
             "craft_tables_discovered": page.craft_tables_discovered,
             "craft_tables_parsed": page.craft_tables_parsed,
             "tier_rows_discovered": tier_discovered,
@@ -209,7 +215,7 @@ def build_reports(
         page_reports.append(row)
         for key in (
             "bases_announced", "bases_discovered", "bases_imported", "bases_classified",
-            "affixes_found", "craft_tables_discovered", "craft_tables_parsed",
+            "affixes_found", "legacy_family_ids_split", "craft_tables_discovered", "craft_tables_parsed",
             "tier_rows_discovered", "tier_rows_imported", "source_tables_discovered",
             "source_table_rows_discovered", "source_table_rows_imported", "weights_imported",
             "explicit_zero_weights", "missing_weights", "unparsed_weights", "failures",
@@ -262,6 +268,14 @@ def build_reports(
             "non_craftable_bases": classification["non_craftable"],
             "unknown_classification_bases": classification["unknown"],
             "affix_entries_discovered": totals["affixes_found"],
+            "canonical_affix_families_imported": totals["affixes_found"],
+            "legacy_family_ids_split": totals["legacy_family_ids_split"],
+            "family_grouping_explanation": (
+                "The previous importer treated a broad source comment as one family. "
+                "The new importer also checks the source modifier family and normalized property text, "
+                "so semantically different affixes receive separate canonical family IDs. "
+                "The old source key remains available as a legacy alias; no tier rows are removed."
+            ),
             "craft_tables_discovered": totals["craft_tables_discovered"],
             "craft_tables_parsed": totals["craft_tables_parsed"],
             "tier_rows_discovered": totals["tier_rows_discovered"],
@@ -324,6 +338,8 @@ def _markdown_summary(
         f"- Unknown classification: {summary['unknown_classification_bases']}",
         f"- Craft tables discovered/parsed: {summary['craft_tables_discovered']} / {summary['craft_tables_parsed']}",
         f"- Affix families discovered: {summary['affix_entries_discovered']}",
+        f"- Broad legacy family IDs split into semantic families: {summary['legacy_family_ids_split']}",
+        f"- Why family counts changed: {summary['family_grouping_explanation']}",
         f"- Tier rows discovered/imported: {summary['tier_rows_discovered']} / {summary['tier_rows_imported']}",
         f"- Weights imported (including zero): {summary['weights_imported']}",
         f"- Explicit zero weights: {summary['explicit_zero_weights']}",

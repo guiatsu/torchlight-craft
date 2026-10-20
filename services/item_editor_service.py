@@ -16,6 +16,7 @@ from core.models import (
     EquipmentItem,
     TierOption,
     new_equipment,
+    resolve_tier_reference,
 )
 from core.validation import validate_item
 
@@ -113,6 +114,28 @@ class ItemEditorService:
     def validation_errors(self) -> list[str]:
         return validate_item(self._item, self.catalog.bases, self.catalog.affixes)
 
+    def _definition_is_already_present(
+        self, definition: AffixDefinition, *, excluding: str | None = None
+    ) -> bool:
+        for instance in self._item.affixes:
+            if instance.id == excluding:
+                continue
+            if instance.definition_id == definition.id:
+                return True
+            old_definition = self.catalog.affixes.get(instance.definition_id)
+            if (
+                old_definition is None
+                or not old_definition.is_legacy_alias
+                or definition.id not in old_definition.legacy_family_member_ids
+            ):
+                continue
+            old_tier, ambiguous = resolve_tier_reference(old_definition.tiers, instance.tier_id)
+            if ambiguous:
+                return True
+            if old_tier and any(tier.id == old_tier.id for tier in definition.tiers):
+                return True
+        return False
+
     def add_or_update_affix(
         self,
         definition: AffixDefinition,
@@ -133,7 +156,7 @@ class ItemEditorService:
             raise ItemEditError("Choose an available affix and tier first.")
         if tier.item_level_required is not None and self._item.item_level < tier.item_level_required:
             raise ItemEditError(
-                f"{tier.id} requires Item Level {tier.item_level_required} in the current catalog."
+                f"{tier.tier_label} requires Item Level {tier.item_level_required} in the current catalog."
             )
         clean_value = value.strip()
         if not clean_value:
@@ -149,10 +172,7 @@ class ItemEditorService:
             raise ItemEditError(
                 "Resolve the other incompatible affixes before adding or replacing an affix."
             )
-        if any(
-            existing.definition_id == definition.id and existing.id != instance_id
-            for existing in self._item.affixes
-        ):
+        if self._definition_is_already_present(definition, excluding=instance_id):
             raise ItemEditError(f"{definition.name} is already on this equipment.")
 
         if target:

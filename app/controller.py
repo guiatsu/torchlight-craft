@@ -11,6 +11,7 @@ from app.viewmodels.item_editor import ItemEditorViewModel
 from app.viewmodels.library import ItemLibraryViewModel
 from core.catalog import Catalog, load_catalog
 from core.models import new_equipment
+from core.version import APP_VERSION
 from services.affix_browser import AffixBrowser
 from services.item_editor_service import ItemEditorService
 from services.item_library_service import ItemLibraryService
@@ -61,6 +62,10 @@ class AppController(QObject):
     @Property(QObject, constant=True)
     def editor(self) -> ItemEditorViewModel:
         return self._editor
+
+    @Property(str, constant=True)
+    def appVersion(self) -> str:
+        return APP_VERSION
 
     @Property(QObject, constant=True)
     def affixBrowser(self) -> AffixBrowserViewModel:

@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import re
 from collections import Counter
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from typing import Any
 from urllib.parse import urlparse
 
@@ -55,6 +55,9 @@ class AffixTierRecord:
     crafting_system_id: str
     family_id: str
     family_source_id: str | None
+    source_modifier_family_id: str | None
+    semantic_signature: str
+    legacy_family_id: str | None
     family_grouping_status: str
     display_name: str
     group: str
@@ -362,6 +365,76 @@ def _family_display_name(description: str) -> str:
     return name or description
 
 
+_NUMERIC_RANGE_RE = re.compile(
+    r"\(\s*([+-]?)\s*\d+(?:[.,]\d+)?\s*(?:[–—-]\s*[+-]?\s*\d+(?:[.,]\d+)?)?\s*\)(%?)"
+)
+_STANDALONE_RANGE_RE = re.compile(
+    r"(?<![A-Za-z])([+-]?)\s*\d+(?:[.,]\d+)?\s*[–—-]\s*[+-]?\s*\d+(?:[.,]\d+)?(%?)"
+)
+_NUMBER_RE = re.compile(r"(?<![A-Za-z])([+-]?)\s*\d+(?:[.,]\d+)?(%?)")
+
+
+def _semantic_signature(description: str) -> str:
+    """Normalize values while retaining the affix property and its sign."""
+    normalized = _NUMERIC_RANGE_RE.sub(
+        lambda match: f"{match.group(1)}#{match.group(2)}", description.casefold()
+    )
+    normalized = _STANDALONE_RANGE_RE.sub(
+        lambda match: f"{match.group(1)}#-#{match.group(2)}", normalized
+    )
+    normalized = _NUMBER_RE.sub(lambda match: f"{match.group(1)}#{match.group(2)}", normalized)
+    normalized = re.sub(r"\s+", " ", normalized)
+    normalized = re.sub(r"\s*([,;])\s*", r"\1 ", normalized)
+    return normalized.strip()
+
+
+def _modifier_family_id(source_modifier_id: str | None) -> str | None:
+    if source_modifier_id and len(source_modifier_id) > 2:
+        return source_modifier_id[:-2]
+    return source_modifier_id
+
+
+def _reconcile_family_ids(records: list[AffixTierRecord]) -> list[AffixTierRecord]:
+    """Split source comments that contain multiple modifier families.
+
+    TLIDB's row comment is useful provenance, but it is broader than a semantic
+    affix family for some tables. Keep that old key as an explicit alias target
+    and derive canonical IDs from the table, modifier family and property text.
+    """
+    identities_by_legacy: dict[str, set[tuple[str, str, str, str]]] = {}
+    for record in records:
+        if not record.legacy_family_id:
+            continue
+        identity = (
+            record.pool_id,
+            record.group,
+            record.source_modifier_family_id or "missing-modifier-family",
+            record.semantic_signature,
+        )
+        identities_by_legacy.setdefault(record.legacy_family_id, set()).add(identity)
+
+    result: list[AffixTierRecord] = []
+    for record in records:
+        legacy_id = record.legacy_family_id
+        if legacy_id is None:
+            result.append(record)
+            continue
+        identities = identities_by_legacy[legacy_id]
+        identity = (
+            record.pool_id,
+            record.group,
+            record.source_modifier_family_id or "missing-modifier-family",
+            record.semantic_signature,
+        )
+        if len(identities) == 1:
+            canonical_id = legacy_id
+        else:
+            digest = hashlib.sha256("\x1f".join(identity).encode("utf-8")).hexdigest()[:16]
+            canonical_id = f"{legacy_id}:split:{digest}"
+        result.append(replace(record, family_id=canonical_id))
+    return result
+
+
 def _craft_rows(
     pane: Node,
     category: EquipmentCategoryLink,
@@ -409,8 +482,10 @@ def _craft_rows(
             requirement_level, requirement_raw = _parse_requirement(level_raw)
             source_modifier_id = _modifier_source_id(row)
             source_family_id = _family_source_id(row)
+            legacy_family_id = None
             if source_family_id:
                 family_id = f"{category.id}:family:{section_id}:{group or 'unknown'}:{library or 'unknown'}:{source_family_id}"
+                legacy_family_id = family_id
                 grouping_status = "source_family_id"
             else:
                 stable_row = source_modifier_id or f"{section_id}:{pool_name}:{group or 'unknown'}:{row_number}"
@@ -485,6 +560,9 @@ def _craft_rows(
                     crafting_system_id=crafting_system_id,
                     family_id=family_id,
                     family_source_id=source_family_id,
+                    source_modifier_family_id=_modifier_family_id(source_modifier_id),
+                    semantic_signature=_semantic_signature(description),
+                    legacy_family_id=legacy_family_id,
                     family_grouping_status=grouping_status,
                     display_name=family_name,
                     group=group or "unknown",
@@ -751,6 +829,8 @@ def parse_category_page(
                     "issue": "tier_rows_in_non_craft_section",
                     "row_count": len(rows),
                 })
+
+    parsed.tiers = _reconcile_family_ids(parsed.tiers)
 
     for section in parsed.sections:
         if section.announced_count is not None and section.discovered_record_count != section.announced_count:

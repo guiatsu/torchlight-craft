@@ -13,6 +13,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuickControls2 import QQuickStyle
 
 from app.controller import AppController
+from core.version import APP_VERSION
 
 
 DIAGNOSTIC_LOG = Path(tempfile.gettempdir()) / "TorchlightCraftPlanner-startup.log"
@@ -62,7 +63,7 @@ def _run_application(diagnostics: list[str]) -> int:
     QCoreApplication.setOrganizationName("Torchlight Craft Planner")
     QCoreApplication.setOrganizationDomain("local.torchlight-craft-planner")
     QCoreApplication.setApplicationName("Torchlight Craft Planner")
-    QCoreApplication.setApplicationVersion("0.2.0")
+    QCoreApplication.setApplicationVersion(APP_VERSION)
 
     app = QGuiApplication(sys.argv)
     root_dir = Path(__file__).resolve().parent

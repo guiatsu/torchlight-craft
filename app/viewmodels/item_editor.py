@@ -4,7 +4,13 @@ from __future__ import annotations
 
 from PySide6.QtCore import QObject, Property, Signal, Slot
 
-from core.models import AffixGroup, BaseDefinition, MIN_ITEM_LEVEL, MAX_ITEM_LEVEL
+from core.models import (
+    AffixGroup,
+    BaseDefinition,
+    MIN_ITEM_LEVEL,
+    MAX_ITEM_LEVEL,
+    resolve_tier_reference,
+)
 from services.item_editor_service import ItemEditorService
 
 
@@ -32,6 +38,8 @@ class ItemEditorViewModel(QObject):
             if matching:
                 self._selected_base_category = matching.category
         self._base_search_query = ""
+        self._base_class_filter = "standard_craftable"
+        self._auto_suggest_base = True
 
     def _current_base(self) -> BaseDefinition | None:
         return self.service.catalog.bases.get(self.service.item.base_id)
@@ -50,11 +58,19 @@ class ItemEditorViewModel(QObject):
             "editorSupported": base.editor_supported,
             "classificationEvidence": base.classification_evidence,
             "legacyAlias": base.is_legacy_alias,
+            "characterRequirementText": (
+                f"Character level {base.character_level_requirement}"
+                if base.character_level_requirement is not None
+                else "Character requirement not listed"
+            ),
         }
 
     def _instance_view(self, instance) -> dict[str, object]:
         definition = self.service.catalog.affixes.get(instance.definition_id)
-        tier = next((option for option in definition.tiers if option.id == instance.tier_id), None) if definition else None
+        tier, tier_ambiguous = (
+            resolve_tier_reference(definition.tiers, instance.tier_id)
+            if definition else (None, False)
+        )
         return {
             "id": instance.id,
             "definitionId": instance.definition_id,
@@ -62,6 +78,8 @@ class ItemEditorViewModel(QObject):
             "group": instance.group.value,
             "category": instance.category.value,
             "tierId": instance.tier_id,
+            "tierLabel": tier.tier_label if tier else instance.tier_id,
+            "tierAmbiguous": tier_ambiguous,
             "value": instance.value,
             "tierRange": tier.value_range if tier else "",
             "verificationStatus": instance.verification_status,
@@ -199,21 +217,11 @@ class ItemEditorViewModel(QObject):
         query = self._base_search_query.casefold().strip()
         matches = [
             base for base in self._selectable_bases
-            if base.category == self._selected_base_category
+            if base.crafting_class == self._base_class_filter
+            and base.category == self._selected_base_category
             and (not self._selected_base_subcategory or base.subcategory == self._selected_base_subcategory)
             and (not query or query in base.name.casefold())
         ]
-        matches = matches[:100]
-        current_id = self.service.item.base_id
-        if current_id not in {base.id for base in matches}:
-            current = self.service.catalog.bases.get(current_id)
-            if current and current.is_legacy_alias and current.subcategory == self._selected_base_subcategory:
-                matches = [current, *matches[:99]]
-            if current and not current.is_legacy_alias and current.category == self._selected_base_category:
-                if (not self._selected_base_subcategory or current.subcategory == self._selected_base_subcategory) and (
-                    not query or query in current.name.casefold()
-                ):
-                    matches = [current, *matches[:99]]
         return [self._base_view(base) for base in matches]
 
     @Property("QVariantList", notify=stateChanged)
@@ -240,14 +248,79 @@ class ItemEditorViewModel(QObject):
         query = self._base_search_query.casefold().strip()
         matching_count = sum(
             1 for base in self._selectable_bases
-            if base.category == self._selected_base_category
+            if base.crafting_class == self._base_class_filter
+            and base.category == self._selected_base_category
             and (not self._selected_base_subcategory or base.subcategory == self._selected_base_subcategory)
             and (not query or query in base.name.casefold())
         )
         shown = len(self.baseOptions)
         if matching_count > shown:
-            return f"Showing {shown} of {matching_count}; type to narrow the list"
+            return f"{matching_count} matching bases"
         return f"{matching_count} matching base(s)"
+
+    @Property("QVariantList", notify=stateChanged)
+    def baseClassFilters(self) -> list[dict[str, str]]:
+        return [
+            {"name": "Standard craftable", "id": "standard_craftable"},
+            {"name": "Special systems", "id": "special_craftable"},
+            {"name": "Unknown compatibility", "id": "unknown"},
+            {"name": "Not craftable", "id": "non_craftable"},
+        ]
+
+    @Property(str, notify=stateChanged)
+    def baseClassFilter(self) -> str:
+        return self._base_class_filter
+
+    @Property(bool, notify=stateChanged)
+    def autoSuggestBase(self) -> bool:
+        return self._auto_suggest_base
+
+    @Property("QVariantList", notify=stateChanged)
+    def suggestedBaseOptions(self) -> list[dict[str, object]]:
+        if not self._auto_suggest_base:
+            return []
+        eligible = [
+            base for base in self._selectable_bases
+            if base.crafting_class == "standard_craftable"
+            and base.category == self._selected_base_category
+            and (not self._selected_base_subcategory or base.subcategory == self._selected_base_subcategory)
+            and base.minimum_item_level is not None
+            and base.minimum_item_level <= self.service.item.item_level
+        ]
+        if not eligible:
+            return []
+        best_minimum = max(base.minimum_item_level for base in eligible if base.minimum_item_level is not None)
+        best = [base for base in eligible if base.minimum_item_level == best_minimum]
+        best.sort(key=lambda base: (base.character_level_requirement or 0, base.name.casefold()))
+        return [self._base_view(base) for base in best]
+
+    @Property(str, notify=stateChanged)
+    def baseSuggestionSummary(self) -> str:
+        if not self._auto_suggest_base:
+            return "Base suggestions are off."
+        candidates = self.suggestedBaseOptions
+        if not candidates:
+            return "No verified minimum Item Level is available for this base category. Choose a base manually."
+        if len(candidates) > 1:
+            return f"{len(candidates)} bases share the closest verified minimum Item Level; choose manually."
+        candidate = candidates[0]
+        return (
+            f"Suggestion: {candidate['name']} · minimum Item Level {candidate['minimumItemLevel']}"
+            f" · {candidate['characterRequirementText']}"
+        )
+
+    @Property(bool, notify=stateChanged)
+    def canApplyBaseSuggestion(self) -> bool:
+        return len(self.suggestedBaseOptions) == 1
+
+    @Property(str, notify=stateChanged)
+    def baseCompatibilityWarning(self) -> str:
+        base = self._current_base()
+        if base is None or base.minimum_item_level is None:
+            return ""
+        if self.service.item.item_level < base.minimum_item_level:
+            return f"This base lists minimum Item Level {base.minimum_item_level}; the equipment is Item Level {self.service.item.item_level}."
+        return ""
 
     @Property("QVariantList", notify=affixesChanged)
     def prefixSlots(self) -> list[dict[str, object]]:
@@ -358,12 +431,9 @@ class ItemEditorViewModel(QObject):
         self._selected_base_category = category
         options = [base for base in self._selectable_bases if base.category == category]
         subcategories = sorted({base.subcategory for base in options})
-        self._selected_base_subcategory = subcategories[0] if subcategories else ""
-        initial_options = [base for base in options if base.subcategory == self._selected_base_subcategory]
-        if initial_options and self.service.item.base_id not in {base.id for base in initial_options}:
-            self.setBase(sorted(initial_options, key=lambda base: base.name.casefold())[0].id)
-        else:
-            self.stateChanged.emit()
+        if self._selected_base_subcategory not in subcategories:
+            self._selected_base_subcategory = subcategories[0] if subcategories else ""
+        self.stateChanged.emit()
 
     @Slot(str)
     def setBaseSubcategory(self, subcategory: str) -> None:
@@ -374,10 +444,27 @@ class ItemEditorViewModel(QObject):
         if not options:
             return
         self._selected_base_subcategory = subcategory
-        if self.service.item.base_id not in {base.id for base in options}:
-            self.setBase(sorted(options, key=lambda base: base.name.casefold())[0].id)
-        else:
+        self.stateChanged.emit()
+
+    @Slot(str)
+    def setBaseClassFilter(self, crafting_class: str) -> None:
+        if crafting_class not in {entry["id"] for entry in self.baseClassFilters}:
+            return
+        if crafting_class != self._base_class_filter:
+            self._base_class_filter = crafting_class
             self.stateChanged.emit()
+
+    @Slot(bool)
+    def setAutoSuggestBase(self, enabled: bool) -> None:
+        if self._auto_suggest_base != enabled:
+            self._auto_suggest_base = enabled
+            self.stateChanged.emit()
+
+    @Slot()
+    def applySuggestedBase(self) -> None:
+        candidates = self.suggestedBaseOptions
+        if len(candidates) == 1:
+            self.setBase(str(candidates[0]["id"]))
 
     @Slot(str)
     def setBaseSearch(self, query: str) -> None:

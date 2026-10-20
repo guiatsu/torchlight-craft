@@ -70,7 +70,7 @@ def _load_sqlite_catalog() -> Catalog:
         connection.row_factory = sqlite3.Row
         with connection:
             version = connection.execute("PRAGMA user_version").fetchone()[0]
-            if version != 2:
+            if version != 3:
                 raise CatalogError(f"Unsupported catalog database schema version: {version}")
 
             categories = {
@@ -190,9 +190,10 @@ def _load_sqlite_catalog() -> Catalog:
                 }
                 tiers = tuple(
                     TierOption(
-                        id=row["tier_label"] or "Unknown",
+                        id=row["id"],
                         item_level_required=row["requirement_level"],
                         value_range=row["description"],
+                        tier_label=row["tier_label"] or "Unknown",
                         verification_status=family["verification_status"],
                         requirement_level_raw=row["requirement_level_raw"],
                         weight_raw=row["weight_raw"],
@@ -221,6 +222,54 @@ def _load_sqlite_catalog() -> Catalog:
                     source_family_id=family["family_source_id"] or "",
                     family_grouping_status=family["grouping_status"],
                     crafting_system_id=source_system,
+                )
+
+            # Older equipment files stored the broad TLIDB comment family ID.
+            # If that source key now resolves to several canonical families,
+            # keep an explicit read/edit alias containing all original rows.
+            # Legacy tier labels are resolved only when they identify one row.
+            legacy_groups: dict[str, list[sqlite3.Row]] = {}
+            for family in family_rows:
+                legacy_id = family["legacy_family_id"]
+                if legacy_id and legacy_id != family["id"]:
+                    legacy_groups.setdefault(legacy_id, []).append(family)
+            for legacy_id, siblings in legacy_groups.items():
+                valid_siblings = [row for row in siblings if row["id"] in affixes]
+                child_definitions = [affixes[row["id"]] for row in valid_siblings]
+                if not child_definitions or legacy_id in affixes:
+                    continue
+                first = child_definitions[0]
+                tiers = tuple(
+                    tier
+                    for sibling in valid_siblings
+                    for tier in affixes[sibling["id"]].tiers
+                )
+                descriptions = sorted({definition.name for definition in child_definitions})
+                display_name = (
+                    descriptions[0]
+                    if len(descriptions) == 1
+                    else "Ambiguous legacy family: " + " / ".join(descriptions[:3])
+                )
+                affixes[legacy_id] = AffixDefinition(
+                    id=legacy_id,
+                    name=display_name,
+                    group=first.group,
+                    category=first.category,
+                    base_ids=tuple(sorted({
+                        base_id for definition in child_definitions for base_id in definition.base_ids
+                    })),
+                    tiers=tiers,
+                    value_editable=True,
+                    source_id=first.source_id,
+                    verification_status=first.verification_status,
+                    compatibility_status="ambiguous_legacy_alias",
+                    source_url=first.source_url,
+                    source_section=first.source_section,
+                    source_family_id=first.source_family_id,
+                    family_grouping_status="ambiguous_legacy_alias",
+                    crafting_system_id=first.crafting_system_id,
+                    is_legacy_alias=True,
+                    legacy_family_member_ids=tuple(sorted(row["id"] for row in valid_siblings)),
                 )
 
             # Definitions from v0.1.1 remain addressable by saved items. They

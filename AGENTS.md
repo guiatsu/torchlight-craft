@@ -6,9 +6,9 @@
 
 - Projeto: **Torchlight Craft Planner**, aplicativo desktop Windows para edição de equipamentos de Torchlight: Infinite.
 - Stack: **Python 3.12+, PySide6, Qt Quick/QML, dataclasses, catálogo local SQLite e biblioteca JSON local**. Build Windows com `pyside6-deploy`/Nuitka.
-- **Marco atual: v0.2.0 — importação exaustiva e auditável do catálogo comunitário TLIDB, com busca integrada ao editor.** Não adicionar crafting aleatório, probabilidade, custos, otimização, OCR, integração com o jogo ou atualização remota automática.
+- **Marco atual: v0.2.1 — importação exaustiva com identidade semântica de famílias e tiers, seleção assistida de bases e auditoria do catálogo TLIDB.** Não adicionar crafting aleatório, probabilidade, custos, otimização, OCR, integração com o jogo ou atualização remota automática.
 - A tela de crafting do jogo é referência de **composição e fluxo visual**, não apenas de paleta. O app continua sendo um *editor*, não uma réplica funcional do crafting nesta versão.
-- A captura do catálogo de 2026-10-19 contém 49 categorias, 2.194 bases, 642 famílias de afixos, 13.303 tiers e 831 registros de outras tabelas. Os dados comunitários **não estão confirmados para SS14**. A auditoria está parcial; nunca apresente regras estimadas como oficiais.
+- A captura do catálogo de 2026-10-19 contém 49 categorias, 2.194 bases, 2.233 famílias semânticas de afixos, 13.303 tiers e 831 registros de outras tabelas. O v0.2.1 dividiu 382 chaves amplas de família; cada tier original continua presente e as chaves antigas são preservadas como aliases. Os dados comunitários **não estão confirmados para SS14**. A auditoria está parcial; nunca apresente regras estimadas como oficiais.
 
 ## Estado do repositório na criação deste arquivo (2026-10-19)
 
@@ -20,7 +20,7 @@
 - O CI Windows já compilou com Nuitka, mas a execução empacotada falhou no smoke test (`--smoke-test`). **Não remover nem ignorar essa verificação para obter CI verde.**
 - Consulte sempre a branch/commit atual; estes fatos são um diagnóstico inicial, não substituem reavaliação.
 
-## Atualização da implementação v0.2.0
+## Atualização da implementação v0.2.1
 
 - A composição Qt está em `app/controller.py`; `core/controller.py` permanece apenas como import de compatibilidade.
 - `app/viewmodels/` contém os view-models do equipamento, navegação de afixos e biblioteca. Eles compartilham um único `ItemEditorService` e uma única sessão mutável.
@@ -30,7 +30,9 @@
 - Incompatibilidades resultantes de troca de base são mantidas, listadas e bloqueiam salvar. A interface oferece substituição individual ou remoção em lote com confirmação.
 - O workflow Windows usa `tools/stage_windows_runtime.ps1` e captura o código de saída com `Start-Process -Wait -PassThru`. O executável grava falhas de inicialização em `%TEMP%\TorchlightCraftPlanner-startup.log`; o smoke test continua obrigatório.
 - A validação offscreen confirma inicialização QML, mas não substitui revisão visual no Windows.
-- `data/catalog.sqlite3` é o catálogo local normalizado (schema v2); a biblioteca de equipamentos do usuário continua em JSON `schema_version=1`. O app não consulta a rede na inicialização.
+- `data/catalog.sqlite3` é o catálogo local normalizado (schema v3), com `tier_record_id`, rótulo visual separado, assinatura semântica e referência da antiga chave ampla; a biblioteca de equipamentos do usuário continua em JSON `schema_version=1`. O app não consulta a rede na inicialização.
+- Sugestões de base usam apenas `minimum_item_level` verificado; requisito de nível do personagem é exibido separadamente. Mudanças de nível e filtros nunca trocam a base nem removem afixos.
+- A versão exibida e a compilada é lida de `pyproject.toml`; inclua esse arquivo como dado ao gerar o executável Windows.
 - `tools/tlidb/` descobre categorias dinamicamente, respeita `robots.txt`, usa cache com hash e requisições serializadas, importa offline, valida e compara snapshots. Não mova o importador para o caminho de inicialização do aplicativo.
 - Os relatórios em `reports/` registram descoberta, retenção, erros, campos ausentes e validação. A captura atual reteve 100% dos registros encontrados, mas 1.219 classificações e 50 campos continuam sem confirmação suficiente; status geral `partial` é intencional.
 - Base ou afixo sem classificação conhecida permanece pesquisável e rotulado, mas não entra silenciosamente na seleção de craft padrão. Não inferir `non_craftable` a partir de ausência de dados.
@@ -79,7 +81,7 @@ ui/
   theme/                    # tokens centralizados de cor, texto e espaçamento
 assets/                     # ícones/arte própria
 data/                       # bases/afixos/fontes com proveniência
-  catalog.sqlite3           # catálogo TLIDB normalizado, schema v2
+  catalog.sqlite3           # catálogo TLIDB normalizado, schema v3
 tools/tlidb/                # descoberta, importação, validação e diff offline
 reports/                    # cobertura, unresolved, errors e validação da captura
 tests/                      # testes de domínio, integração e smoke

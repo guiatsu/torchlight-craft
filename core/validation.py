@@ -10,7 +10,25 @@ from core.models import (
     AffixDefinition,
     BaseDefinition,
     EquipmentItem,
+    resolve_tier_reference,
 )
+
+
+def _canonical_family_candidates(instance, affixes: dict[str, AffixDefinition]) -> set[str]:
+    definition = affixes.get(instance.definition_id)
+    if definition is None or not definition.is_legacy_alias or not definition.legacy_family_member_ids:
+        return {instance.definition_id}
+    tier, ambiguous = resolve_tier_reference(definition.tiers, instance.tier_id)
+    if ambiguous:
+        return set(definition.legacy_family_member_ids)
+    if tier is not None:
+        matching = [
+            member_id for member_id in definition.legacy_family_member_ids
+            if member_id in affixes and any(option.id == tier.id for option in affixes[member_id].tiers)
+        ]
+        if len(matching) == 1:
+            return {matching[0]}
+    return set(definition.legacy_family_member_ids)
 
 
 def validate_item(
@@ -38,15 +56,16 @@ def validate_item(
     if len(instance_ids) != len(set(instance_ids)):
         errors.append("Each affix needs a unique instance ID.")
 
-    definition_ids = [affix.definition_id for affix in item.affixes]
-    duplicate_definition_ids = {
-        definition_id
-        for definition_id, count in Counter(definition_ids).items()
-        if count > 1
+    family_instances: dict[str, set[str]] = {}
+    for instance in item.affixes:
+        for family_id in _canonical_family_candidates(instance, affixes):
+            family_instances.setdefault(family_id, set()).add(instance.id)
+    duplicate_family_ids = {
+        family_id for family_id, instance_ids in family_instances.items() if len(instance_ids) > 1
     }
-    for definition_id in sorted(duplicate_definition_ids):
-        definition = affixes.get(definition_id)
-        name = definition.name if definition else definition_id
+    for family_id in sorted(duplicate_family_ids):
+        definition = affixes.get(family_id)
+        name = definition.name if definition else family_id
         errors.append(f"{name} can only be added once to an equipment item.")
 
     counts = Counter(affix.group.value for affix in item.affixes)
@@ -66,12 +85,17 @@ def validate_item(
             errors.append(f"Affix {definition.name} has a category that does not match the catalog.")
         if base is not None and definition.base_ids and base.id not in definition.base_ids:
             errors.append(f"Affix {definition.name} is not listed for {base.name}.")
-        tier = next((option for option in definition.tiers if option.id == instance.tier_id), None)
+        tier, ambiguous_tier = resolve_tier_reference(definition.tiers, instance.tier_id)
         if tier is None:
-            errors.append(f"Affix {definition.name} has an unsupported tier.")
+            if ambiguous_tier:
+                errors.append(
+                    f"Affix {definition.name} has an ambiguous legacy tier label {instance.tier_id}; choose a specific tier record."
+                )
+            else:
+                errors.append(f"Affix {definition.name} has an unsupported tier.")
         elif tier.item_level_required is not None and item.item_level < tier.item_level_required:
             errors.append(
-                f"Affix {definition.name} {tier.id} is listed from Item Level {tier.item_level_required}."
+                f"Affix {definition.name} {tier.tier_label} is listed from Item Level {tier.item_level_required}."
             )
         if len(instance.value) > 120:
             errors.append(f"Affix {definition.name} value must be 120 characters or fewer.")

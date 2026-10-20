@@ -15,4 +15,4 @@ excluded_qml_plugins = QtCharts,QtQuick3D,QtSensors,QtTest,QtWebEngine
 
 [nuitka]
 mode = standalone
-extra_args = --windows-console-mode=disable --assume-yes-for-downloads --windows-icon-from-ico=assets/icons/planner-mark.ico
+extra_args = --windows-console-mode=disable --assume-yes-for-downloads --windows-icon-from-ico=assets/icons/planner-mark.ico --include-data-files=pyproject.toml=pyproject.toml

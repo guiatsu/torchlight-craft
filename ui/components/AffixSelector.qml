@@ -186,12 +186,26 @@ Rectangle {
                         }
                         Text {
                             Layout.fillWidth: true
-                            text: modelData.alreadyAdded ? "Already on this equipment" : "Standard crafting pool · community reference"
+                            text: modelData.alreadyAdded
+                                  ? "Already on this equipment · " + modelData.categoryLabel
+                                  : modelData.categoryLabel + " · " + modelData.tierCount + " tiers"
                             color: modelData.alreadyAdded ? Theme.warning : Theme.textMuted
                             font.pixelSize: 10
+                            elide: Text.ElideRight
                         }
                     }
-                    Text { text: modelData.tierSummary; color: Theme.basic; font.pixelSize: 10; font.weight: Font.DemiBold }
+                    Text {
+                        Layout.maximumWidth: 118
+                        text: modelData.tierSummary
+                        color: Theme.basic
+                        font.pixelSize: 9
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                        ToolTip.visible: tierSummaryHover.hovered
+                        ToolTip.text: modelData.tierCount + " source tier records: " + modelData.tierSummary
+                        ToolTip.delay: 500
+                        HoverHandler { id: tierSummaryHover }
+                    }
                 }
             }
 
@@ -235,27 +249,62 @@ Rectangle {
                 }
             }
 
-            RowLayout {
+            GridView {
+                id: tierGrid
                 Layout.fillWidth: true
-                spacing: 6
-                Repeater {
-                    model: root.browser.tierOptions
-                    delegate: Button {
-                        id: tierButton
-                        required property var modelData
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 34
-                        enabled: modelData.eligible
-                        text: modelData.eligible ? modelData.id : modelData.id + " · iLvl " + modelData.itemLevelRequired
-                        onClicked: root.browser.setTier(modelData.id)
-                        background: Rectangle {
-                            radius: Theme.radiusSmall
-                            color: root.browser.selectedTierId === modelData.id ? "#3B3150" : Theme.surfaceRaised
-                            border.color: root.browser.selectedTierId === modelData.id ? Theme.advanced : Theme.borderSoft
-                            opacity: modelData.eligible ? 1 : 0.55
-                        }
-                        contentItem: Text { text: tierButton.text; color: Theme.text; font.pixelSize: 10; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight }
+                Layout.preferredHeight: Math.min(112, Math.max(38,
+                    Math.ceil(root.browser.tierOptions.length / Math.max(1, Math.floor(width / 64))) * 38))
+                cellWidth: width / Math.max(1, Math.floor(width / 64))
+                cellHeight: 38
+                clip: true
+                model: root.browser.tierOptions
+                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+                delegate: Button {
+                    id: tierButton
+                    required property var modelData
+                    width: tierGrid.cellWidth - 5
+                    height: 33
+                    enabled: modelData.eligible
+                    text: modelData.tierLabel
+                    onClicked: root.browser.setTier(modelData.id)
+                    background: Rectangle {
+                        radius: Theme.radiusSmall
+                        color: root.browser.selectedTierId === modelData.id ? "#3B3150" : Theme.surfaceRaised
+                        border.color: root.browser.selectedTierId === modelData.id ? Theme.advanced : Theme.borderSoft
+                        opacity: modelData.eligible ? 1 : 0.55
                     }
+                    contentItem: Text {
+                        text: tierButton.text
+                        color: modelData.eligible ? Theme.text : Theme.textMuted
+                        font.pixelSize: 10
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+                    }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 450
+                    ToolTip.text: modelData.valueRange
+                        + "\n" + (modelData.itemLevelRequired === null ? "Item Level not listed" : "Requires Item Level " + modelData.itemLevelRequired)
+                        + " · Weight " + (modelData.weightRaw === null ? "not listed" : modelData.weightRaw)
+                        + "\n" + modelData.sourceSection + " · " + modelData.sourceRowKey
+                }
+            }
+
+            Connections {
+                target: root.browser
+                function onSelectionChanged() {
+                    var options = root.browser.tierOptions
+                    var selected = -1
+                    for (var i = 0; i < options.length; ++i) {
+                        if (options[i].id === root.browser.selectedTierId) {
+                            selected = i
+                            break
+                        }
+                    }
+                    if (selected >= 0)
+                        tierGrid.positionViewAtIndex(selected, GridView.Contain)
+                    else
+                        tierGrid.positionViewAtBeginning()
                 }
             }
 
@@ -269,6 +318,17 @@ Rectangle {
                 }
                 color: Theme.textSecondary
                 font.pixelSize: Theme.secondarySize
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+            }
+
+            Text {
+                Layout.fillWidth: true
+                visible: root.browser.selectedTierAmbiguous
+                text: "This saved tier label matches multiple source records. Choose a specific record to resolve it."
+                color: Theme.warning
+                font.pixelSize: 9
                 wrapMode: Text.WordWrap
                 maximumLineCount: 2
                 elide: Text.ElideRight

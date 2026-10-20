@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torchlight-craft-planner"
-version = "0.2.0"
+version = "0.2.1"
 description = "Offline Torchlight: Infinite equipment editor"
 requires-python = ">=3.12"
 dependencies = ["PySide6==6.12.0"]
@@ -34,6 +34,7 @@ files = [
     "core/models/affix.py",
     "core/models/base.py",
     "core/models/equipment.py",
+    "core/version.py",
     "core/serialization.py",
     "core/validation.py",
     "app/__init__.py",
@@ -63,4 +64,4 @@ input_file = "main.py"
 exec_directory = "dist"
 icon = "assets/icons/planner-mark.ico"
 mode = "standalone"
-extra_args = "--windows-console-mode=disable --assume-yes-for-downloads"
+extra_args = "--windows-console-mode=disable --assume-yes-for-downloads --include-data-files=pyproject.toml=pyproject.toml"

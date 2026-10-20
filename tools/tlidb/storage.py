@@ -15,7 +15,7 @@ from tools.tlidb.fetcher import FetchedPage
 from tools.tlidb.parsers import ParsedCategoryPage
 
 
-CATALOG_SCHEMA_VERSION = 2
+CATALOG_SCHEMA_VERSION = 3
 SEASON_REFERENCE = "SS14 — Tartarus (community source; not independently verified)"
 CRAFTING_SYSTEMS = {
     "tlidb:standard-craft": (
@@ -185,6 +185,9 @@ def _create_schema(connection: sqlite3.Connection) -> None:
             id TEXT PRIMARY KEY,
             pool_id TEXT NOT NULL REFERENCES affix_pools(id),
             family_source_id TEXT,
+            source_modifier_family_id TEXT,
+            semantic_signature TEXT NOT NULL,
+            legacy_family_id TEXT,
             display_name TEXT NOT NULL,
             grouping_status TEXT NOT NULL,
             library TEXT,
@@ -262,7 +265,7 @@ def write_catalog_database(
     try:
         with sqlite3.connect(temporary) as connection:
             _create_schema(connection)
-            connection.execute("PRAGMA user_version = 2")
+            connection.execute(f"PRAGMA user_version = {CATALOG_SCHEMA_VERSION}")
             for key, value in {
                 "catalog_schema_version": str(CATALOG_SCHEMA_VERSION),
                 "season_reference": SEASON_REFERENCE,
@@ -418,7 +421,7 @@ def write_catalog_database(
 
                 for tier in page.tiers:
                     pool_records[tier.pool_id] = (category.id, tier)
-                    family_records[tier.family_id] = tier
+                    family_records.setdefault(tier.family_id, tier)
                 for row in page.source_rows:
                     connection.execute(
                         "INSERT INTO source_table_rows VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -454,11 +457,14 @@ def write_catalog_database(
                 )
             for family_id, tier in family_records.items():
                 connection.execute(
-                    "INSERT INTO affix_families VALUES(?,?,?,?,?,?,?,?,?)",
+                    "INSERT INTO affix_families VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                     (
                         family_id,
                         tier.pool_id,
                         tier.family_source_id,
+                        tier.source_modifier_family_id,
+                        tier.semantic_signature,
+                        tier.legacy_family_id,
                         tier.display_name,
                         tier.family_grouping_status,
                         tier.library,

@@ -28,9 +28,10 @@ The app is designed for a desktop Windows workflow and should remain usable offl
 
 ## Capabilities and Constraints
 
-- v0.2.0 includes category/subcategory filters and name search over the imported catalog, integer Item Level, a Priceless toggle, standard-craft prefix/suffix selection and editing, catalog-listed slots, and JSON save/load/duplicate/rename/delete.
-- The user's equipment library remains `schema_version=1`; the normalized local catalog uses SQLite schema v2.
-- The 2026-10-19 TLIDB snapshot contains 49 discovered categories, 2,194 base records, 642 affix families, 13,303 tiers, 831 retained non-affix source rows, and 37 inspected item detail pages. All 16,328 discovered records were retained, while overall classification coverage remains partial.
+- v0.2.1 includes category/subcategory filters and name search over the imported catalog, integer Item Level, verified-only base suggestions, standard-craft prefix/suffix selection and editing, catalog-listed slots, and JSON save/load/duplicate/rename/delete.
+- The user's equipment library remains `schema_version=1`; the normalized local catalog uses SQLite schema v3.
+- The 2026-10-19 TLIDB snapshot contains 49 discovered categories, 2,194 base records, 2,233 semantic affix families, 13,303 tiers, 831 retained non-affix source rows, and 37 inspected item detail pages. The family count rose from 642 because 382 broad legacy source keys contained multiple semantic properties; legacy aliases preserve old equipment references. All 16,328 source records were retained, while overall classification coverage remains partial.
+- Tier identity uses stable source record IDs, while T0/T1 labels remain presentation-only. Repeated legacy labels are resolved only when unique; ambiguous labels are surfaced for correction.
 - Current classification counts: 637 standard craftable, 338 special craftable, 0 explicitly non-craftable, and 1,219 unknown. Fifty source fields remain absent after detail inspection.
 - `tools/tlidb/` provides dynamic discovery, cached import, offline validation, reports, and snapshot diff. It never runs during app startup.
 - Changing to a base that does not list an existing affix preserves that affix and blocks saving until it is replaced or explicitly removed.

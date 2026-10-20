@@ -1,21 +1,27 @@
 # Torchlight Craft Planner
 
-Version 0.2.0 is an offline desktop equipment editor for Torchlight: Infinite. It keeps the v0.1 item editing and library flows and bundles a normalized, auditable TLIDB catalog. It does not perform crafts or calculate costs or probabilities.
+Version 0.2.1 is an offline desktop equipment editor for Torchlight: Infinite. It keeps the v0.1 item editing and library flows and bundles a normalized, auditable TLIDB catalog. It does not perform crafts or calculate costs or probabilities.
 
 ## Features
 
-- Browse equipment by category and subcategory, search by name, and select from a bounded result list.
+- Browse equipment by category and subcategory, search by name, and select from a virtualized result list.
 - See the listed character requirement, base properties, crafting classification, and source status.
 - Add, edit, replace, and remove compatible standard-craft affixes in separate prefix and suffix groups.
 - Filter Basic, Advanced, and Ultimate affixes; see all published tiers, requirements, exact source weights, and source links.
+- See each imported tier with a stable record ID, separate from its T0/T1 display label; ambiguous v0.2 tier labels are called out.
+- Get a base suggestion only when the catalog contains a verified minimum Item Level; category filters never replace the selected base.
 - Keep special or unknown equipment in the catalog and label systems the current editor does not support.
 - Save, open, duplicate, rename, and delete equipment in the existing `schema_version=1` JSON library.
 
 ## Catalog snapshot
 
-The 2026-10-19 import discovered and processed all **49** category pages in TLIDB's Gear card. It reconciled all 48 control categories and included one additional live category, Ethereal Prism. The category cards and item pages yielded **2,194 equipment records**, **642 affix families**, **13,303 tier rows**, and **831 non-affix source rows**. All **16,328** discovered records were retained in SQLite; no category page or table failed parsing. The import preserved **3,516 explicit zero weights**, and found no missing or unparsed tier weights.
+The 2026-10-19 import discovered and processed all **49** category pages in TLIDB's Gear card. It reconciled all 48 control categories and included one additional live category, Ethereal Prism. The category cards and item pages yielded **2,194 equipment records**, **2,233 semantic affix families**, **13,303 tier rows**, and **831 non-affix source rows**. All **16,328** discovered records were retained in SQLite; no category page or table failed parsing. The import preserved **3,516 explicit zero weights**, and found no missing or unparsed tier weights.
+
+The family count increased from 642 in v0.2.0 because its grouping key treated a broad TLIDB table comment as a complete affix family. The v0.2.1 importer also groups by modifier family and normalized property description, splitting **382** legacy family keys that contained multiple properties. Every old family key remains available as a hidden compatibility alias, and all 13,303 source tier rows are retained.
 
 The audit is **partial**, not complete: 637 records are classified `standard_craftable`, 338 `special_craftable`, 0 `non_craftable`, and 1,219 remain `unknown`. Fifty base fields are still absent from the source pages after inspecting 37 distinct item detail pages; seven records gained confirmed fields from those pages. Ten self-named Vorax entries use their already-fetched category page as the item URL, so there is no separate detail page for those entries. The unresolved report distinguishes those cases from detail pages that were inspected but lacked the field. Unknown Legendary classifications are preserved without guessing. Ethereal Prism's 393 tabular records are retained as raw source rows rather than treated as conventional craft affixes.
+
+The current snapshot has no verified `minimum_item_level` values on equipment bases. The suggestion control therefore explains that it cannot rank bases in this snapshot. It never compares equipment Item Level with a base's character level requirement.
 
 The percentage in `reports/tlidb-coverage.json` measures record retention against the records discovered in fetched pages. It does not confirm gameplay rules or season accuracy. TLIDB is a community reference; records remain `community_reference_season_unverified` for SS14 — Tartarus.
 
@@ -27,8 +33,9 @@ Reports are checked in under `reports/`:
 - `tlidb-unresolved.json` — unknown classifications and source fields that remain absent.
 - `tlidb-import-summary.md` — human-readable snapshot.
 - `tlidb-validation.json` — SQLite schema, foreign-key, and integrity checks.
+- `tlidb-v021-migration.md` — v0.2.0/v0.2.1 count comparison and Claw regression audit.
 
-The runtime catalog is `data/catalog.sqlite3` (catalog schema v2). Legacy JSON records remain available as hidden aliases so v0.1/v0.1.1 equipment IDs still resolve. User items remain in their separate `schema_version=1` JSON library. The app never fetches TLIDB at startup and works offline.
+The runtime catalog is `data/catalog.sqlite3` (catalog schema v3). Legacy JSON records and split v0.2 family IDs remain available as hidden aliases so saved equipment references still resolve. User items remain in their separate `schema_version=1` JSON library. The app never fetches TLIDB at startup and works offline. The UI version and Windows build both read the single version in `pyproject.toml`.
 
 ## Update and validate the catalog
 

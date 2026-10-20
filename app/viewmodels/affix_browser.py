@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import QObject, Property, Signal, Slot
 
-from core.models import AffixCategory, AffixGroup, AffixInstance
+from core.models import AffixCategory, AffixGroup, AffixInstance, resolve_tier_reference
 from services.affix_browser import AffixBrowser
 from services.item_editor_service import ItemEditError, ItemEditorService
 
@@ -27,10 +27,26 @@ class AffixBrowserViewModel(QObject):
         self._set_default_selection()
 
     def _definition_is_on_item(self, definition_id: str, excluding: str | None = None) -> bool:
-        return any(
-            item.definition_id == definition_id and item.id != excluding
-            for item in self.editor.item.affixes
-        )
+        definition = self.browser.catalog.affixes.get(definition_id)
+        for item in self.editor.item.affixes:
+            if item.id == excluding:
+                continue
+            if item.definition_id == definition_id:
+                return True
+            old_definition = self.browser.catalog.affixes.get(item.definition_id)
+            if (
+                definition is None
+                or old_definition is None
+                or not old_definition.is_legacy_alias
+                or definition_id not in old_definition.legacy_family_member_ids
+            ):
+                continue
+            old_tier, ambiguous = resolve_tier_reference(old_definition.tiers, item.tier_id)
+            if ambiguous:
+                return True
+            if old_tier and any(tier.id == old_tier.id for tier in definition.tiers):
+                return True
+        return False
 
     def _set_default_selection(self) -> None:
         candidates = self.browser.definitions_for(self.editor.item.base_id)
@@ -45,6 +61,7 @@ class AffixBrowserViewModel(QObject):
         eligible = tier.item_level_required is None or self.editor.item.item_level >= tier.item_level_required
         return {
             "id": tier.id,
+            "tierLabel": tier.tier_label,
             "valueRange": tier.value_range,
             "itemLevelRequired": tier.item_level_required,
             "itemLevelRequiredRaw": tier.requirement_level_raw,
@@ -52,9 +69,10 @@ class AffixBrowserViewModel(QObject):
             "weightParseStatus": tier.weight_parse_status,
             "sourceSection": tier.source_section,
             "sourceTable": tier.source_table,
+            "sourceRowKey": tier.source_row_key,
             "sourceUrl": tier.source_url,
             "eligible": eligible,
-            "label": f"{tier.id} · {tier.value_range}",
+            "label": f"{tier.tier_label} · {tier.value_range}",
             "sortIndex": index,
         }
 
@@ -66,12 +84,20 @@ class AffixBrowserViewModel(QObject):
             "category": definition.category.value,
             "compatibilityStatus": definition.compatibility_status,
             "verificationStatus": definition.verification_status,
-            "tierSummary": " · ".join(tier.id for tier in definition.tiers),
+            "tierSummary": self._tier_summary(definition),
+            "tierCount": len(definition.tiers),
+            "categoryLabel": f"{definition.group.value.title()} · {definition.category.value}",
             "craftingSystemId": definition.crafting_system_id,
             "sourceSection": definition.source_section,
             "familyGroupingStatus": definition.family_grouping_status,
             "alreadyAdded": self._definition_is_on_item(definition.id, self.browser.instance_id),
         }
+
+    @staticmethod
+    def _tier_summary(definition) -> str:
+        labels = [tier.tier_label for tier in definition.tiers]
+        preview = " · ".join(labels[:4])
+        return f"{preview} · +{len(labels) - 4}" if len(labels) > 4 else preview
 
     @Property("QVariantList", notify=selectionChanged)
     def availableAffixes(self) -> list[dict[str, object]]:
@@ -111,7 +137,12 @@ class AffixBrowserViewModel(QObject):
 
     @Property(str, notify=selectionChanged)
     def selectedTierId(self) -> str:
-        return self.browser.tier_id or ""
+        tier = self.browser.selected_tier()
+        return tier.id if tier else ""
+
+    @Property(bool, notify=selectionChanged)
+    def selectedTierAmbiguous(self) -> bool:
+        return self.browser.selected_tier_is_ambiguous()
 
     @Property(str, notify=selectionChanged)
     def selectedValue(self) -> str:
@@ -130,7 +161,7 @@ class AffixBrowserViewModel(QObject):
         level = f"Requires Item Level {tier.item_level_required}" if tier.item_level_required is not None else "Item Level requirement not listed"
         weight = f"Published weight {tier.weight_raw}" if tier.weight_raw is not None else "Weight not listed"
         source = tier.source_section or tier.source_table or "TLIDB source"
-        return f"{level} · {weight} · {source} · weight is source data, not a probability"
+        return f"{level} · {weight} · {source} · {tier.source_row_key} · weight is source data, not a probability"
 
     @Property(str, notify=selectionChanged)
     def selectedTierSourceUrl(self) -> str:
@@ -166,6 +197,10 @@ class AffixBrowserViewModel(QObject):
         if not self.browser.definition:
             return "Choose an affix from the local catalog."
         definition = self.browser.definition
+        if definition.family_grouping_status == "ambiguous_legacy_alias":
+            if self.browser.selected_tier_is_ambiguous():
+                return "Legacy family split · this saved tier label is ambiguous"
+            return "Legacy family alias · selected tier resolves to a source record"
         if definition and definition.family_grouping_status != "source_family_id":
             return "Community reference · family grouping pending · SS14 unverified"
         return "Community reference · SS14 unverified"
@@ -243,7 +278,7 @@ class AffixBrowserViewModel(QObject):
             definition = self.browser.definition
             option = next((item for item in definition.tiers if item.id == tier_id), None) if definition else None
             if option:
-                self.noticeRequested.emit(f"{option.id} is listed from Item Level {option.item_level_required}.", "error")
+                self.noticeRequested.emit(f"{option.tier_label} is listed from Item Level {option.item_level_required}.", "error")
             return
         self.selectionChanged.emit()
 

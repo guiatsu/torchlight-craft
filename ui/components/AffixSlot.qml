@@ -39,7 +39,7 @@ Item {
 
             TierBadge {
                 visible: parent.parent.occupied
-                tier: root.slot.affix.tierId || "T?"
+                tier: root.slot.affix.tierAmbiguous ? "T?" : root.slot.affix.tierLabel || "T?"
                 category: root.slot.affix.category || "Basic"
             }
 
@@ -91,5 +91,10 @@ Item {
                 else root.addRequested(root.group, root.slot.index)
             }
         }
+
+        HoverHandler { id: slotHover }
+        ToolTip.visible: slotHover.hovered && root.slot.kind === "affix" && root.slot.affix.tierAmbiguous
+        ToolTip.text: "This saved tier label matches multiple catalog records. Resolve it in the affix selector."
+        ToolTip.delay: 450
     }
 }

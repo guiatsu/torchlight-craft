@@ -24,6 +24,7 @@ class TierOption:
     id: str
     item_level_required: int | None
     value_range: str
+    tier_label: str = ""
     verification_status: str = "community_reference_season_unverified"
     requirement_level_raw: str | None = None
     weight_raw: str | None = None
@@ -44,6 +45,7 @@ class TierOption:
                 else None
             ),
             value_range=str(data["value_range"]),
+            tier_label=str(data.get("tier_label", data["id"])),
             verification_status=str(
                 data.get("verification_status", "community_reference_season_unverified")
             ),
@@ -60,6 +62,19 @@ class TierOption:
             source_table=str(data.get("source_table", "")),
             source_row_key=str(data.get("source_row_key", "")),
         )
+
+
+def resolve_tier_reference(
+    tiers: tuple[TierOption, ...], stored_id: str
+) -> tuple[TierOption | None, bool]:
+    """Resolve stable IDs, or an old visual label only when it is unique."""
+    exact = next((tier for tier in tiers if tier.id == stored_id), None)
+    if exact is not None:
+        return exact, False
+    legacy_matches = [tier for tier in tiers if tier.tier_label == stored_id]
+    if len(legacy_matches) == 1:
+        return legacy_matches[0], False
+    return None, len(legacy_matches) > 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,6 +95,7 @@ class AffixDefinition:
     family_grouping_status: str = "unknown"
     crafting_system_id: str = ""
     is_legacy_alias: bool = False
+    legacy_family_member_ids: tuple[str, ...] = ()
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "AffixDefinition":
@@ -102,6 +118,9 @@ class AffixDefinition:
             family_grouping_status=str(data.get("family_grouping_status", "unknown")),
             crafting_system_id=str(data.get("crafting_system_id", "")),
             is_legacy_alias=bool(data.get("is_legacy_alias", False)),
+            legacy_family_member_ids=tuple(
+                str(value) for value in data.get("legacy_family_member_ids", [])
+            ),
         )
 
 

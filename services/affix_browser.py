@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 from core.catalog import Catalog
-from core.models import AffixCategory, AffixDefinition, AffixGroup, AffixInstance, TierOption
+from core.models import (
+    AffixCategory,
+    AffixDefinition,
+    AffixGroup,
+    AffixInstance,
+    TierOption,
+    resolve_tier_reference,
+)
 
 
 class AffixBrowser:
@@ -96,7 +103,15 @@ class AffixBrowser:
         definition = self.definition
         if not definition:
             return None
-        return next((tier for tier in definition.tiers if tier.id == self.tier_id), None)
+        tier, _ = resolve_tier_reference(definition.tiers, self.tier_id or "")
+        return tier
+
+    def selected_tier_is_ambiguous(self) -> bool:
+        definition = self.definition
+        if not definition:
+            return False
+        _, ambiguous = resolve_tier_reference(definition.tiers, self.tier_id or "")
+        return ambiguous
 
     def set_tier(self, tier_id: str, item_level: int) -> TierOption | None:
         definition = self.definition
