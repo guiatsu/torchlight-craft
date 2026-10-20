@@ -63,7 +63,11 @@ class AffixBrowser:
 
     def set_category(self, category: AffixCategory) -> None:
         self.category = category
-        self.clear_selection()
+        # Keep the selected equipment slot/instance as the editing target while
+        # the category tabs change which catalog definitions are displayed.
+        self.definition_id = None
+        self.tier_id = None
+        self.value = ""
 
     def set_search(self, query: str) -> None:
         self.search_query = query[:100]

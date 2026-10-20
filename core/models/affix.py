@@ -96,6 +96,10 @@ class AffixDefinition:
     crafting_system_id: str = ""
     is_legacy_alias: bool = False
     legacy_family_member_ids: tuple[str, ...] = ()
+    # Exact normalized source pool. This is catalog metadata and is deliberately
+    # not part of EquipmentItem's schema-v1 persistence format.
+    pool_id: str = ""
+    semantic_signature: str = ""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "AffixDefinition":
@@ -121,6 +125,8 @@ class AffixDefinition:
             legacy_family_member_ids=tuple(
                 str(value) for value in data.get("legacy_family_member_ids", [])
             ),
+            pool_id=str(data.get("pool_id", "")),
+            semantic_signature=str(data.get("semantic_signature", "")),
         )
 
 

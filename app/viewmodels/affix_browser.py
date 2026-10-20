@@ -77,6 +77,33 @@ class AffixBrowserViewModel(QObject):
         }
 
     def _definition_view(self, definition) -> dict[str, object]:
+        highest_tier = next(
+            (
+                tier
+                for tier in definition.tiers
+                if tier.item_level_required is None
+                or self.editor.item.item_level >= tier.item_level_required
+            ),
+            definition.tiers[0] if definition.tiers else None,
+        )
+        highest_tier_eligible = bool(
+            highest_tier
+            and (
+                highest_tier.item_level_required is None
+                or self.editor.item.item_level >= highest_tier.item_level_required
+            )
+        )
+        selected_tier = None
+        if definition.id == self.browser.definition_id and not self.browser.selected_tier_is_ambiguous():
+            selected_tier = self.browser.selected_tier()
+        displayed_tier = selected_tier or highest_tier
+        displayed_tier_eligible = bool(
+            displayed_tier
+            and (
+                displayed_tier.item_level_required is None
+                or self.editor.item.item_level >= displayed_tier.item_level_required
+            )
+        )
         return {
             "id": definition.id,
             "name": definition.name,
@@ -86,7 +113,26 @@ class AffixBrowserViewModel(QObject):
             "verificationStatus": definition.verification_status,
             "tierSummary": self._tier_summary(definition),
             "tierCount": len(definition.tiers),
-            "categoryLabel": f"{definition.group.value.title()} · {definition.category.value}",
+            "categoryLabel": f"{len(definition.tiers)} listed tiers",
+            "highestTierLabel": highest_tier.tier_label if highest_tier else "—",
+            "highestTierDescription": (
+                highest_tier.value_range if highest_tier else definition.name
+            ),
+            "highestTierEligible": highest_tier_eligible,
+            "highestTierItemLevelRequired": (
+                highest_tier.item_level_required if highest_tier else None
+            ),
+            # The selected candidate previews the tier chosen below the list;
+            # all other candidates continue to show their highest eligible tier.
+            "displayTierLabel": displayed_tier.tier_label if displayed_tier else "—",
+            "displayTierDescription": (
+                displayed_tier.value_range if displayed_tier else definition.name
+            ),
+            "displayTierEligible": displayed_tier_eligible,
+            "displayTierItemLevelRequired": (
+                displayed_tier.item_level_required if displayed_tier else None
+            ),
+            "displayTierIsSelected": selected_tier is not None,
             "craftingSystemId": definition.crafting_system_id,
             "sourceSection": definition.source_section,
             "familyGroupingStatus": definition.family_grouping_status,
@@ -115,6 +161,28 @@ class AffixBrowserViewModel(QObject):
     def selectedGroup(self) -> str:
         return self.browser.group.value
 
+    @Property(int, notify=selectionChanged)
+    def selectedSlotIndex(self) -> int:
+        if self.browser.instance_id:
+            group_affixes = [
+                item for item in self.editor.item.affixes if item.group == self.browser.group
+            ]
+            for index, instance in enumerate(group_affixes):
+                if instance.id == self.browser.instance_id:
+                    return index
+        return self.browser.slot_index if self.browser.slot_index is not None else -1
+
+    @Property(str, notify=selectionChanged)
+    def selectedTargetLabel(self) -> str:
+        slot_index = self.selectedSlotIndex
+        if self.browser.instance_id:
+            action = "Replacement target" if self.browser.mode == "replace" else "Selected affix"
+            suffix = f" · slot {slot_index + 1}" if slot_index >= 0 else ""
+            return action + suffix
+        if slot_index >= 0:
+            return f"Selected empty slot · {slot_index + 1}"
+        return "Select a slot on the item"
+
     @Property(str, notify=selectionChanged)
     def selectedCategory(self) -> str:
         return self.browser.category.value
@@ -133,7 +201,10 @@ class AffixBrowserViewModel(QObject):
     @Property(str, notify=selectionChanged)
     def selectedDefinitionName(self) -> str:
         definition = self.browser.definition
-        return definition.name if definition else "Select an affix"
+        if definition is None:
+            return "Select an affix"
+        tier = self.browser.selected_tier()
+        return tier.value_range if tier else definition.name
 
     @Property(str, notify=selectionChanged)
     def selectedTierId(self) -> str:
@@ -269,6 +340,27 @@ class AffixBrowserViewModel(QObject):
             self.noticeRequested.emit("This affix is no longer in the local catalog, so it is read-only.", "error")
             return
         self.browser.select_instance(instance)
+        self.selectionChanged.emit()
+
+    @Slot(str)
+    def selectCraftedInstance(self, instance_id: str) -> None:
+        instance = next((item for item in self.editor.item.affixes if item.id == instance_id), None)
+        if instance is None:
+            return
+        self.browser.select_instance(instance)
+        self.selectionChanged.emit()
+
+    @Slot(str, int, str)
+    def selectCraftTarget(self, group: str, index: int, instance_id: str) -> None:
+        if instance_id:
+            self.selectCraftedInstance(instance_id)
+            return
+        try:
+            selected_group = AffixGroup(group)
+        except ValueError:
+            return
+        self.browser.begin_add(selected_group, index)
+        self._set_default_selection()
         self.selectionChanged.emit()
 
     @Slot(str)

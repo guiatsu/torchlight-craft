@@ -7,12 +7,14 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Property, QStandardPaths, Signal, Slot
 
 from app.viewmodels.affix_browser import AffixBrowserViewModel
+from app.viewmodels.crafting import CraftingViewModel
 from app.viewmodels.item_editor import ItemEditorViewModel
 from app.viewmodels.library import ItemLibraryViewModel
 from core.catalog import Catalog, load_catalog
 from core.models import new_equipment
 from core.version import APP_VERSION
 from services.affix_browser import AffixBrowser
+from services.crafting_service import CraftingService
 from services.item_editor_service import ItemEditorService
 from services.item_library_service import ItemLibraryService
 from services.item_repository import ItemRepository
@@ -33,6 +35,7 @@ class AppController(QObject):
 
         self.editor_service = ItemEditorService(self.catalog, initial_item)
         self.browser_service = AffixBrowser(self.catalog)
+        self.crafting_service = CraftingService(self.catalog)
         self.library_service = ItemLibraryService(
             ItemRepository(
                 Path(
@@ -47,6 +50,9 @@ class AppController(QObject):
         self._affix_browser = AffixBrowserViewModel(
             self.browser_service, self.editor_service, self
         )
+        self._crafting = CraftingViewModel(
+            self.crafting_service, self.editor_service, self._affix_browser, self
+        )
         self._library = ItemLibraryViewModel(
             self.library_service, self._editor, self._affix_browser, self
         )
@@ -54,7 +60,12 @@ class AppController(QObject):
         self._editor.itemLevelChanged.connect(self._affix_browser.item_level_changed)
         self._editor.affixesChanged.connect(self._affix_browser.selectionChanged.emit)
         self._affix_browser.itemChanged.connect(self._notify_item_mutated)
-        for view_model in (self._editor, self._affix_browser, self._library):
+        self._editor.equipmentChanged.connect(self._crafting.invalidateHistory)
+        self._editor.equipmentChanged.connect(self._crafting.refreshPreview)
+        self._affix_browser.selectionChanged.connect(self._crafting.refreshPreview)
+        self._affix_browser.itemChanged.connect(self._crafting.invalidateHistory)
+        self._crafting.itemChanged.connect(self._notify_item_mutated)
+        for view_model in (self._editor, self._affix_browser, self._crafting, self._library):
             view_model.noticeRequested.connect(self._set_notice)
         self._notice_text = ""
         self._notice_kind = "info"
@@ -70,6 +81,10 @@ class AppController(QObject):
     @Property(QObject, constant=True)
     def affixBrowser(self) -> AffixBrowserViewModel:
         return self._affix_browser
+
+    @Property(QObject, constant=True)
+    def crafting(self) -> CraftingViewModel:
+        return self._crafting
 
     @Property(QObject, constant=True)
     def library(self) -> ItemLibraryViewModel:

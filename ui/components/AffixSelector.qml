@@ -24,39 +24,18 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 8
-            Row {
-                spacing: 4
-                Repeater {
-                    model: [
-                        { id: "prefix", label: "Prefix" },
-                        { id: "suffix", label: "Suffix" }
-                    ]
-                    delegate: Button {
-                        id: groupButton
-                        required property var modelData
-                        text: modelData.label
-                        onClicked: root.browser.setAffixGroup(modelData.id)
-                        background: Rectangle {
-                            radius: Theme.radiusSmall
-                            color: root.browser.selectedGroup === modelData.id ? Theme.accentSoft : Theme.surfaceInset
-                            border.color: root.browser.selectedGroup === modelData.id ? Theme.accent : Theme.borderSoft
-                        }
-                        contentItem: Text {
-                            text: groupButton.text
-                            color: root.browser.selectedGroup === modelData.id ? "#D1F4F5" : Theme.textSecondary
-                            font.pixelSize: Theme.secondarySize
-                            font.weight: Font.DemiBold
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                    }
-                }
+            spacing: 10
+            Text {
+                Layout.fillWidth: true
+                text: root.browser.selectedTargetLabel
+                color: Theme.textSecondary
+                font.pixelSize: Theme.secondarySize
+                font.weight: Font.Medium
+                elide: Text.ElideRight
             }
-
             TextField {
                 id: searchField
-                Layout.fillWidth: true
+                Layout.preferredWidth: Math.min(250, root.width * 0.52)
                 Layout.preferredHeight: 36
                 text: root.browser.searchQuery
                 placeholderText: "Search affixes"
@@ -84,7 +63,7 @@ Rectangle {
                     required property string modelData
                     Layout.fillWidth: true
                     Layout.preferredHeight: 34
-                    text: modelData
+                    text: modelData + " Affix"
                     onClicked: root.browser.setAffixCategory(modelData)
                     background: Rectangle {
                         radius: Theme.radiusSmall
@@ -103,12 +82,24 @@ Rectangle {
             }
         }
 
+        Text {
+            Layout.fillWidth: true
+            text: root.browser.selectedMode === "replace"
+                ? "Choose a replacement for the selected affix slot."
+                : root.browser.selectedMode === "edit"
+                  ? "Choose a catalog option to update this affix."
+                  : "Choose an affix for the selected slot."
+            color: Theme.textMuted
+            font.pixelSize: Theme.secondarySize
+            elide: Text.ElideRight
+        }
+
         Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSoft }
 
         RowLayout {
             Layout.fillWidth: true
-            Text { Layout.fillWidth: true; text: "AFFIX"; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
-            Text { text: "TIERS"; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
+            Text { Layout.fillWidth: true; text: "POSSIBLE AFFIXES"; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
+            Text { text: "TIER"; color: Theme.textMuted; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 1 }
         }
 
         ButtonGroup { id: affixChoiceGroup }
@@ -116,9 +107,9 @@ Rectangle {
         ListView {
             id: affixList
             Layout.fillWidth: true
-            Layout.preferredHeight: Math.min(220, Math.max(100, root.browser.availableAffixes.length * 66 + 16))
+            Layout.preferredHeight: Math.min(320, Math.max(100, root.browser.availableAffixes.length * 66 + 16))
             Layout.minimumHeight: 100
-            Layout.maximumHeight: 220
+            Layout.maximumHeight: 320
             Layout.fillHeight: false
             clip: true
             spacing: 5
@@ -176,7 +167,7 @@ Rectangle {
                         spacing: 3
                         Text {
                             Layout.fillWidth: true
-                            text: modelData.name
+                            text: modelData.displayTierDescription || modelData.highestTierDescription || modelData.name
                             color: Theme.text
                             font.pixelSize: Theme.bodySize
                             font.weight: Font.Medium
@@ -187,24 +178,40 @@ Rectangle {
                         Text {
                             Layout.fillWidth: true
                             text: modelData.alreadyAdded
-                                  ? "Already on this equipment · " + modelData.categoryLabel
-                                  : modelData.categoryLabel + " · " + modelData.tierCount + " tiers"
+                                  ? "Already on this equipment"
+                                  : modelData.categoryLabel + " · community reference"
                             color: modelData.alreadyAdded ? Theme.warning : Theme.textMuted
                             font.pixelSize: 10
                             elide: Text.ElideRight
                         }
                     }
-                    Text {
-                        Layout.maximumWidth: 118
-                        text: modelData.tierSummary
-                        color: Theme.basic
-                        font.pixelSize: 9
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                        ToolTip.visible: tierSummaryHover.hovered
-                        ToolTip.text: modelData.tierCount + " source tier records: " + modelData.tierSummary
-                        ToolTip.delay: 500
-                        HoverHandler { id: tierSummaryHover }
+                    Rectangle {
+                        implicitWidth: highestTierLabel.implicitWidth + 14
+                        Layout.minimumWidth: 34
+                        Layout.preferredHeight: 21
+                        radius: 3
+                        color: modelData.displayTierEligible ? "#282A2C" : Theme.surfaceInset
+                        border.color: modelData.displayTierEligible
+                            ? Theme.tierBorder(modelData.displayTierLabel || modelData.highestTierLabel)
+                            : Theme.borderSoft
+                        opacity: modelData.displayTierEligible ? 1 : 0.7
+                        Text {
+                            id: highestTierLabel
+                            anchors.centerIn: parent
+                            text: modelData.displayTierLabel || modelData.highestTierLabel
+                            color: Theme.tierText(modelData.displayTierLabel || modelData.highestTierLabel)
+                            font.pixelSize: 10
+                            font.weight: Font.DemiBold
+                        }
+                        ToolTip.visible: highestTierHover.hovered
+                        ToolTip.text: modelData.displayTierIsSelected
+                            ? "Selected tier · " + modelData.tierCount + " source tiers"
+                            : modelData.highestTierEligible
+                              ? "Highest tier eligible for this item's Item Level · " + modelData.tierCount + " source tiers"
+                              : "Top tier requires Item Level " + modelData.highestTierItemLevelRequired
+                                + " · " + modelData.tierCount + " source tiers"
+                        ToolTip.delay: 450
+                        HoverHandler { id: highestTierHover }
                     }
                 }
             }
@@ -269,13 +276,19 @@ Rectangle {
                     onClicked: root.browser.setTier(modelData.id)
                     background: Rectangle {
                         radius: Theme.radiusSmall
-                        color: root.browser.selectedTierId === modelData.id ? "#3B3150" : Theme.surfaceRaised
-                        border.color: root.browser.selectedTierId === modelData.id ? Theme.advanced : Theme.borderSoft
+                        color: root.browser.selectedTierId === modelData.id
+                            ? Theme.tierBackground(modelData.tierLabel)
+                            : Theme.surfaceRaised
+                        border.color: root.browser.selectedTierId === modelData.id
+                            ? Theme.tierBorder(modelData.tierLabel)
+                            : Theme.borderSoft
                         opacity: modelData.eligible ? 1 : 0.55
                     }
                     contentItem: Text {
                         text: tierButton.text
-                        color: modelData.eligible ? Theme.text : Theme.textMuted
+                        color: root.browser.selectedTierId === modelData.id
+                            ? Theme.tierText(modelData.tierLabel)
+                            : modelData.eligible ? Theme.text : Theme.textMuted
                         font.pixelSize: 10
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -293,6 +306,9 @@ Rectangle {
             Connections {
                 target: root.browser
                 function onSelectionChanged() {
+                    // TextField loses its initial text binding after keyboard input.
+                    // Resync it when a tier or affix selection changes.
+                    valueField.text = root.browser.selectedValue
                     var options = root.browser.tierOptions
                     var selected = -1
                     for (var i = 0; i < options.length; ++i) {

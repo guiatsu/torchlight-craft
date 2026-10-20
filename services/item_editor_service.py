@@ -48,6 +48,12 @@ class ItemEditorService:
         self._item = item
         self._baseline = deepcopy(item.to_dict()) if clean else {}
 
+    def apply_crafted_state(self, item: EquipmentItem) -> None:
+        """Install a craft snapshot while preserving the active save baseline."""
+        if item.id != self._item.id:
+            raise ItemEditError("Crafting cannot replace the current equipment identity.")
+        self._item = EquipmentItem.from_dict(item.to_dict())
+
     @property
     def is_dirty(self) -> bool:
         return self._item.to_dict() != self._baseline

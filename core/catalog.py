@@ -142,7 +142,7 @@ def _load_sqlite_catalog() -> Catalog:
             sources.update(source_refs)
 
             family_rows = connection.execute(
-                """SELECT f.*, p.category_id, p.group_name, p.crafting_system_id,
+                """SELECT f.*, p.id AS exact_pool_id, p.category_id, p.group_name, p.crafting_system_id,
                           c.verification_status
                    FROM affix_families f
                    JOIN affix_pools p ON p.id=f.pool_id
@@ -222,6 +222,8 @@ def _load_sqlite_catalog() -> Catalog:
                     source_family_id=family["family_source_id"] or "",
                     family_grouping_status=family["grouping_status"],
                     crafting_system_id=source_system,
+                    pool_id=family["exact_pool_id"],
+                    semantic_signature=family["semantic_signature"] or "",
                 )
 
             # Older equipment files stored the broad TLIDB comment family ID.
@@ -270,6 +272,8 @@ def _load_sqlite_catalog() -> Catalog:
                     crafting_system_id=first.crafting_system_id,
                     is_legacy_alias=True,
                     legacy_family_member_ids=tuple(sorted(row["id"] for row in valid_siblings)),
+                    pool_id=first.pool_id,
+                    semantic_signature=first.semantic_signature,
                 )
 
             # Definitions from v0.1.1 remain addressable by saved items. They

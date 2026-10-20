@@ -1,52 +1,78 @@
-# Implementation Plan: Torchlight Craft Planner v0.2.1
+# Implementation Plan: Torchlight Craft Planner v0.3
 
 ## Overview
 
-Repair TLIDB affix family grouping and give each imported tier a stable record identity. Keep older schema-v1 equipment readable, make large tier lists usable, simplify base selection without inferring a base from Item Level, then reimport and audit the complete cached catalog.
+Add a session-only probabilistic crafting mode beside the existing manual editor. The domain engine will consume the current catalog and one immutable item snapshot, build a single standard-craft pool, calculate exact integer-weight probabilities, make one reproducible weighted draw, and return before/after equipment states. The UI will require an explicit opt-in to the experimental TLIDB-weighted model. Saved equipment remains `schema_version=1`.
 
 ## Architecture Decisions
 
-- Keep every source tier row. Build canonical affix families from the modifier record identity plus a normalized semantic description; retain TLIDB's raw family comment and the previous application family ID as provenance.
-- Preserve an old family ID when it maps to one canonical family. When an old ID maps to several families, expose it only as a legacy alias and report ambiguous saved tier labels instead of selecting the first match.
-- Keep `schema_version=1` equipment serialization. Store the stable source tier-record ID in its existing `tier_id` field and recognize old tier labels only when they resolve uniquely.
-- Use Item Level to revalidate affix tiers and known `minimum_item_level` requirements. Do not compare it with `character_level_requirement`; where base Item Level data is absent, show candidate bases and ambiguity instead of claiming a match.
-- Keep `pyproject.toml` as the single application-version source; pass that version from Python to QML.
+- Preserve the imported catalog and stable tier-record IDs. Expose each family's exact SQLite pool ID on `AffixDefinition`; do not combine pools by display name or T-label.
+- Treat official, source-derived, experimental, and unknown rules as separate metadata. Only standard-craftable catalog bases can enter this first engine. Graft, Corrosion, Gear Empowerment, and unknown classifications remain unavailable.
+- Implement one experimental model: a flat weighted draw across positive-weight eligible family-tier records. The official sources confirm random selection from a chosen pool but do not confirm how TLIDB weights map to the game's distribution. Never call the computed values official odds.
+- Keep T0/T0+ source records and exact zero weights visible in pool details, but exclude zero weights from selection. Tiers above Item Level are excluded.
+- Treat duplicate-family blocking as screenshot-derived, but label the replacement-target exception experimental because its live rule is unknown. Preserve the selected slot position and replace only that instance.
+- Keep craft history in memory and store full before/after snapshots outside the item JSON schema. A normal manual edit or library item replacement invalidates craft undo history; consecutive craft attempts remain undoable one at a time.
+- Keep the present editor panel and switch only the right-side workspace between Edit Mode and Craft Mode.
 
 ## Task List
 
-### Phase 1: Source integrity and identity
-- [x] Inspect repository rules, current implementation, baseline tests, Claw database rows, and published TLIDB Claw table.
-- [x] Correct family grouping and schema; add semantic, duplicate-tier, family-link, source-ID, and row-retention audits.
-- [x] Use stable tier-record IDs in domain selection and migrate old labels only when unambiguous.
-- [x] Reimport all cached pages to a temporary database, compare counts, validate, then replace the bundled catalog and refresh reports.
+### Phase 1: Evidence and catalog contracts
+- [x] Record current-season rules and source links in `docs/crafting-rules.md` with explicit confidence statuses.
+- [x] Expose exact pool and semantic signature metadata in the domain model and SQLite loader without changing legacy JSON serialization.
+- [x] Add immutable craft action/outcome/pool/result types and rule metadata.
+- [x] Confirm representative pool boundaries for Cane, Claw, Ring, and a two-handed base.
 
-### Checkpoint: Catalog integrity
-- [x] All source tier rows are retained and linked to one family.
-- [x] Claw Multistrike and Attack Critical Strike Rating are separate, internally coherent families with exact levels and weights.
-- [x] Existing equipment JSON schema v1 loads; ambiguous legacy labels are visibly unresolved.
+### Checkpoint: Catalog contract
+- [x] Existing catalog and schema-v1 equipment tests pass.
+- [x] Standard-craft pools remain separated by base category, Prefix/Suffix, and Basic/Advanced/Ultimate.
+- [x] Claw Multistrike is one semantic family and remains separate from Critical Strike Rating.
 
-### Phase 2: Catalog selection UX
-- [x] Replace the unlimited tier row with a compact, independently scrollable tier list and technical tooltips.
-- [x] Simplify base selection, keep manual selection available, default to standard-craftable bases, and surface special/unknown bases separately.
-- [x] Add explicit base suggestions that respect verified minimum Item Level data, display ambiguity, and never change a base on Item Level edits or library loads.
-- [x] Revalidate selected tiers on Item Level changes and show incompatibility warnings without deleting affixes.
-- [x] Read the application version from `pyproject.toml` and pass it to the header.
+### Phase 2: Eligibility, probabilities, and engine
+- [x] Build a pool from an item snapshot and selected slot, excluding incompatible bases, tiers, categories, systems, duplicate families, and Advanced/Ultimate cap violations.
+- [x] Fail closed when required pool weights are missing, malformed, negative, or total zero; retain exact zero-weight rows without sampling them.
+- [x] Calculate family, joint-tier, and conditional-tier probabilities with integer arithmetic/Fractions.
+- [x] Add an injected seeded weighted randomizer and pure engine for one add/replace attempt.
+- [x] Return immutable before/after snapshots and a precise reason on invalid operations; invalid attempts never mutate input.
 
-### Phase 3: Regression and delivery
-- [x] Add parser, catalog, service, UI-model, persistence, and QML regression coverage, including Claw reference rows.
-- [x] Update catalog documentation and audit reports with before/after family counts and retained tier counts.
-- [x] Run the full test suite and offscreen QML smoke test; verify the Windows workflow stages `pyproject.toml` and retains its packaged smoke test.
-- [ ] Build and smoke-test the Windows standalone bundle locally. WSL interop returned `UtilBindVsockAnyPort:317: socket failed 1` for both `cmd.exe` and PowerShell, so Windows execution is unavailable in this session.
+### Checkpoint: Domain engine
+- [x] Deterministic tests cover weights, probability sums, pool boundaries, eligibility, replacement identity/position, and no-mutation failures.
+- [x] Statistical test checks a small known distribution with a non-flaky tolerance.
+- [x] Real-catalog reference cases cover Cane, Claw, Ring, two-handed, Priceless, and the Claw Multistrike regression.
+
+### Phase 3: Session integration and QML
+- [x] Add a crafting service and view-model that share the existing editor session.
+- [x] Require explicit opt-in to the experimental model; show the reliability status and source-derived caveats.
+- [x] Add mode switching, operation preview, pool list, family/tier probabilities, one-click craft, result detail, and repeat-on-same-slot behavior.
+- [x] Keep manual editing separate and unchanged; protect craft actions with session snapshots and undo.
+- [x] Invalidate undo history after non-craft equipment edits or item replacement.
+
+### Checkpoint: User flow
+- [x] Integration tests cover selected occupied and empty slots, category changes, preview refresh, one craft, repeated craft, undo, and manual-edit/library compatibility.
+- [x] QML startup and basic craft-flow smoke tests pass without warnings.
+- [ ] Inspect the desktop layout and disabled/unavailable states in a Windows desktop session.
+
+### Phase 4: Release documentation and validation
+- [x] Update `AGENTS.md`, `README.md`, `PRODUCT.md`, `pyproject.toml`, and package file lists for v0.3.
+- [x] Run the complete pytest suite and QML craft-flow smoke test after the final changes.
+- [x] Check Windows interop before attempting a local build. `cmd.exe /c ver` failed with a WSL socket error, so Windows build/executable validation is unavailable in this environment.
+- [x] Review `git diff --check`, changed-file list, and backward compatibility.
+
+### Checkpoint: Complete
+- [x] All feasible acceptance criteria are implemented and verified with evidence.
+- [x] Unknown mechanics and executable-build limits are stated plainly.
 
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| TLIDB's comment ID groups several different modifier families | Wrong descriptions, levels, or weights shown together | Preserve the raw ID as provenance, split by source modifier identity and semantic signature, and validate against the published table |
-| Old equipment stores only a tier label | A label may map to multiple corrected tier records | Keep the JSON contract and report ambiguity; never choose the first matching tier |
-| Source catalog has no verified minimum Item Level for bases | A single correct base cannot be inferred | Show candidates and explicit ambiguity; do not use character-level requirement as Item Level |
-| Catalog replacement is interrupted or invalid | The bundled app could lose its catalog | Import to a temporary file, validate counts and foreign keys, keep the old database until the new database passes |
+| TLIDB weights may not match the in-game distribution | Misleading odds | The weighted model is opt-in and explicitly experimental; the UI shows exact model semantics and source provenance. |
+| Catalog snapshot and live SS14 data can differ | Unsupported or stale pool | Limit execution to catalog-standard craft bases and label source-season status; reject unknown classifications. |
+| Some slot limits and family-exclusion rules are incomplete | Invalid outcomes | Require a catalog-listed slot; record duplicate-family exclusion as source-derived; do not infer unknown capacities. |
+| The app has manual edits and unsaved-change flows | Craft history could erase intervening changes | Store deep before/after snapshots, clear history on external mutations, and preserve the editor's existing save baseline. |
+| Large UI/data changes can regress old saves | Lost equipment references | Do not alter schema-v1 JSON and run existing persistence/regression tests before and after. |
 
 ## Open Questions
 
-- None blocking. The current snapshot has no populated base `minimum_item_level` values, so the UI must state that candidate matches are unverified when it cannot rank by that field.
+- Official documentation does not describe a verified family-then-tier vs. flat weight distribution. Only the explicit experimental flat model will be executable.
+- Numerical rolls inside a tier's published range are not generated because the sources do not establish the within-range distribution.
+- The local Windows executable cannot be declared validated unless Windows execution is available in this environment.

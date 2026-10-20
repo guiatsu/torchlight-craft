@@ -8,6 +8,8 @@ RowLayout {
     id: root
     required property var editor
     required property var browser
+    required property var crafting
+    required property bool craftingMode
     spacing: 14
 
     Rectangle {
@@ -179,10 +181,19 @@ RowLayout {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { text: "Prefixes"; color: Theme.text; font.pixelSize: 15; font.weight: Font.DemiBold }
-                Text { text: root.editor.prefixCountLabel; color: Theme.textSecondary; font.pixelSize: Theme.secondarySize }
+                Text {
+                    text: "Prefix (" + root.editor.prefixCountLabel + ")"
+                    color: Theme.text
+                    font.pixelSize: 14
+                    font.weight: Font.DemiBold
+                }
                 Item { Layout.fillWidth: true }
-                Text { text: root.editor.prefixHeaderHint; color: Theme.textMuted; font.pixelSize: 10 }
+                Text {
+                    visible: root.editor.prefixHeaderHint.indexOf("unknown") >= 0
+                    text: root.editor.prefixHeaderHint
+                    color: Theme.textMuted
+                    font.pixelSize: 10
+                }
             }
 
             ScrollView {
@@ -203,6 +214,8 @@ RowLayout {
                             slot: modelData
                             group: "prefix"
                             selectedInstanceId: root.browser.selectedInstanceId
+                            selectedGroup: root.browser.selectedGroup
+                            selectedSlotIndex: root.browser.selectedSlotIndex
                             onEditRequested: (instanceId) => root.browser.selectAffixInstance(instanceId)
                             onAddRequested: (group, index) => root.browser.beginAddAffixAtSlot(group, index)
                         }
@@ -223,10 +236,19 @@ RowLayout {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { text: "Suffixes"; color: Theme.text; font.pixelSize: 15; font.weight: Font.DemiBold }
-                Text { text: root.editor.suffixCountLabel; color: Theme.textSecondary; font.pixelSize: Theme.secondarySize }
+                Text {
+                    text: "Suffix (" + root.editor.suffixCountLabel + ")"
+                    color: Theme.text
+                    font.pixelSize: 14
+                    font.weight: Font.DemiBold
+                }
                 Item { Layout.fillWidth: true }
-                Text { text: root.editor.suffixHeaderHint; color: Theme.textMuted; font.pixelSize: 10 }
+                Text {
+                    visible: root.editor.suffixHeaderHint.indexOf("unknown") >= 0
+                    text: root.editor.suffixHeaderHint
+                    color: Theme.textMuted
+                    font.pixelSize: 10
+                }
             }
 
             ScrollView {
@@ -247,6 +269,8 @@ RowLayout {
                             slot: modelData
                             group: "suffix"
                             selectedInstanceId: root.browser.selectedInstanceId
+                            selectedGroup: root.browser.selectedGroup
+                            selectedSlotIndex: root.browser.selectedSlotIndex
                             onEditRequested: (instanceId) => root.browser.selectAffixInstance(instanceId)
                             onAddRequested: (group, index) => root.browser.beginAddAffixAtSlot(group, index)
                         }
@@ -264,12 +288,22 @@ RowLayout {
         }
     }
 
-    AffixSelector {
+    Loader {
         Layout.fillHeight: true
         Layout.fillWidth: true
         Layout.minimumWidth: 470
         Layout.preferredWidth: 0.58
-        browser: root.browser
+        sourceComponent: root.craftingMode ? craftWorkspace : editWorkspace
+    }
+
+    Component {
+        id: editWorkspace
+        AffixSelector { browser: root.browser }
+    }
+
+    Component {
+        id: craftWorkspace
+        CraftPanel { crafting: root.crafting }
     }
 
     Dialog {

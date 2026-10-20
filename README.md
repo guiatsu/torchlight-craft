@@ -1,6 +1,6 @@
 # Torchlight Craft Planner
 
-Version 0.2.1 is an offline desktop equipment editor for Torchlight: Infinite. It keeps the v0.1 item editing and library flows and bundles a normalized, auditable TLIDB catalog. It does not perform crafts or calculate costs or probabilities.
+Version 0.3.0 is an offline desktop equipment editor and experimental standard-crafting planner for Torchlight: Infinite. It keeps the v0.1 editing and library flows, bundles a normalized TLIDB catalog, and can simulate one opt-in weighted craft attempt in the open session.
 
 ## Features
 
@@ -11,7 +11,12 @@ Version 0.2.1 is an offline desktop equipment editor for Torchlight: Infinite. I
 - See each imported tier with a stable record ID, separate from its T0/T1 display label; ambiguous v0.2 tier labels are called out.
 - Get a base suggestion only when the catalog contains a verified minimum Item Level; category filters never replace the selected base.
 - Keep special or unknown equipment in the catalog and label systems the current editor does not support.
+- Switch between Edit and Craft modes while sharing the same equipment session.
+- Preview an exact standard-craft pool and inspect family and tier probabilities under **Experimental — TLIDB Weighted**. The model is opt-in and does not claim official game odds.
+- Make one random attempt in the selected slot, repeat on that slot, inspect the result and undo session crafts. The displayed tier range is preserved; a numeric value inside that range is not rolled.
 - Save, open, duplicate, rename, and delete equipment in the existing `schema_version=1` JSON library.
+
+Crafting rule classifications, source links, and known limitations are documented in [`docs/crafting-rules.md`](docs/crafting-rules.md).
 
 ## Catalog snapshot
 
@@ -53,7 +58,7 @@ The development importer uses Python's standard library, a checksum-verified cac
 
 ## Architecture
 
-The Qt/QML facade in `app/controller.py` composes three focused view-models. Python-only services own equipment edits, affix browsing state, and library operations. Models live under `core/models/`; `from core.models import ...` remains supported. The editor service owns the single mutable equipment session.
+The Qt/QML facade in `app/controller.py` composes focused view-models for the editor, affix browser, crafting panel, and library. Python-only services own equipment edits, affix browsing, bounded craft-pool caching, probabilistic crafting, and library operations. The pure engine in `core/crafting.py` uses immutable action/outcome/result records and keeps the user's active equipment as the single session state. Models live under `core/models/`; `from core.models import ...` remains supported. The equipment service keeps the craft undo snapshots separate from the save baseline.
 
 `core/catalog.py` reads the bundled SQLite catalog and adds hidden compatibility aliases from the original JSON files. `tools/tlidb/` is a development-only importer and audit tool; it is not imported during application startup.
 
@@ -87,7 +92,10 @@ or:
 
 ```bash
 .venv/bin/python -m pytest
+QT_QPA_PLATFORM=offscreen .venv/bin/python main.py --smoke-test-craft
 ```
+
+The craft smoke test also loads Craft Mode, makes one eligible test attempt, and undoes it in the temporary process.
 
 ## Windows standalone build
 
@@ -106,7 +114,10 @@ py -3.12 -m venv .venv
 
 - Gameplay and SS14 accuracy are not verified by this community-source import.
 - The 1,219 `unknown` classifications remain visible and are not offered as standard-craft affixes. No items are called non-craftable without explicit evidence.
-- Special systems such as corrosion are recorded but not implemented in the editor. No weights are converted to probabilities.
+- Only standard crafting is simulated. Graft, Corrosion, Gear Empowerment, cost consumption, in-game failure chances, and automatic crafting are not implemented.
+- TLIDB weights are not verified game odds. The single flat weighted-row model is explicitly experimental, off by default, and described in `docs/crafting-rules.md`.
+- Numerical value rolls within a tier's displayed range are not simulated. The result stores the catalog range and says so.
+- Craft undo is session-only. Manual equipment edits and replacing the open item clear its history; no craft history is written into equipment JSON.
 - Fifty base fields remain absent from the linked category/detail pages: 41 character requirements and 9 property sets. See the unresolved report for each record and link.
 - The three-prefix/three-suffix display for Sleeping Sage's Cane is screenshot-derived and remains provisional; other slot limits are unknown unless listed.
 - The offscreen QML smoke test checks startup and QML loading; it does not replace visual review in a Windows desktop session.

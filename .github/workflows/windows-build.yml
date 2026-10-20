@@ -81,7 +81,7 @@ jobs:
           $smokeStdErr = Join-Path $env:TEMP "TorchlightCraftPlanner-smoke.stderr.log"
           Remove-Item -LiteralPath $diagnosticLog -Force -ErrorAction SilentlyContinue
           Remove-Item -LiteralPath $smokeStdOut, $smokeStdErr -Force -ErrorAction SilentlyContinue
-          $process = Start-Process -FilePath $executable.FullName -ArgumentList @("--smoke-test") -WorkingDirectory $bundle.FullName -RedirectStandardOutput $smokeStdOut -RedirectStandardError $smokeStdErr -PassThru -Wait
+          $process = Start-Process -FilePath $executable.FullName -ArgumentList @("--smoke-test-craft") -WorkingDirectory $bundle.FullName -RedirectStandardOutput $smokeStdOut -RedirectStandardError $smokeStdErr -PassThru -Wait
           if ($process.ExitCode -ne 0) {
             Write-Host "Packaged GUI executable exited with code $($process.ExitCode)."
             if (Test-Path -LiteralPath $diagnosticLog) {
@@ -97,7 +97,7 @@ jobs:
               }
             }
             Get-ChildItem $bundle.FullName -Recurse | Select-Object -First 80 FullName
-            throw "The packaged application failed its QML startup smoke test."
+            throw "The packaged application failed its QML craft-flow smoke test."
           }
           Remove-Item -LiteralPath (Join-Path $bundle.FullName "assets\icons\planner-mark.ico") -Force -ErrorAction SilentlyContinue
           $archiveDirectory = Join-Path $env:GITHUB_WORKSPACE "dist"

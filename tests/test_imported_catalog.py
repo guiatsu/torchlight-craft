@@ -26,6 +26,8 @@ def test_imported_affixes_keep_unique_tier_records_and_exact_zero_weights() -> N
     assert definitions
     assert all(not definition.is_legacy_alias for definition in definitions)
     assert all(definition.crafting_system_id == "tlidb:standard-craft" for definition in definitions)
+    assert all(definition.pool_id for definition in definitions)
+    assert all(definition.semantic_signature for definition in definitions)
     zero_tier = next(
         tier
         for definition in definitions

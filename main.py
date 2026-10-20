@@ -80,7 +80,26 @@ def _run_application(diagnostics: list[str]) -> int:
         diagnostics.extend(qml_warnings)
         _write_diagnostics(diagnostics)
         return 1
-    smoke_test = "--smoke-test" in sys.argv[1:]
+    smoke_test = any(flag in sys.argv[1:] for flag in ("--smoke-test", "--smoke-test-craft"))
+    if "--smoke-test-craft" in sys.argv[1:]:
+        root = engine.rootObjects()[0]
+        root.setProperty("craftingMode", True)
+        app.processEvents()
+        controller.affixBrowser.beginAddAffixAtSlot("prefix", 0)
+        controller.crafting.setExperimentalEnabled(True)
+        controller.crafting.craftOnce()
+        app.processEvents()
+        if controller.crafting.historyCount != 1 or len(controller.editor_service.item.affixes) != 1:
+            diagnostics.append("Craft panel smoke flow failed to apply one eligible attempt.")
+            diagnostics.append(controller.crafting.poolMessage)
+            _write_diagnostics(diagnostics)
+            return 1
+        controller.crafting.undoLast()
+        app.processEvents()
+        if controller.crafting.historyCount != 0 or controller.editor_service.item.affixes:
+            diagnostics.append("Craft panel smoke flow failed to undo the attempt.")
+            _write_diagnostics(diagnostics)
+            return 1
     if smoke_test:
         QTimer.singleShot(1500, app.quit)
     exit_code = app.exec()

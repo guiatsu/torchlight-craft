@@ -203,6 +203,7 @@ class ItemLibraryViewModel(QObject):
             self.editor.service.set_name(clean_name)
             self.editor.service.rename_baseline(clean_name)
             self.editor.stateChanged.emit()
+            self.editor.equipmentChanged.emit()
         self.savedItemsChanged.emit()
         self.noticeRequested.emit("Saved equipment renamed.", "success")
 

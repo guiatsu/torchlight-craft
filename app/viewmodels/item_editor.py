@@ -16,6 +16,7 @@ from services.item_editor_service import ItemEditorService
 
 class ItemEditorViewModel(QObject):
     stateChanged = Signal()
+    equipmentChanged = Signal()
     affixesChanged = Signal()
     baseChanged = Signal()
     itemLevelChanged = Signal()
@@ -383,6 +384,7 @@ class ItemEditorViewModel(QObject):
         self.service.set_name(name)
         if before != self.service.item.name:
             self.stateChanged.emit()
+            self.equipmentChanged.emit()
 
     @Slot(int)
     def setItemLevel(self, level: int) -> None:
@@ -393,12 +395,14 @@ class ItemEditorViewModel(QObject):
             return
         self.stateChanged.emit()
         self.itemLevelChanged.emit()
+        self.equipmentChanged.emit()
 
     @Slot(bool)
     def setPriceless(self, priceless: bool) -> None:
         if self.service.item.priceless != priceless:
             self.service.set_priceless(priceless)
             self.stateChanged.emit()
+            self.equipmentChanged.emit()
 
     @Slot(str)
     def setBase(self, base_id: str) -> None:
@@ -416,6 +420,7 @@ class ItemEditorViewModel(QObject):
         self.stateChanged.emit()
         self.affixesChanged.emit()
         self.baseChanged.emit()
+        self.equipmentChanged.emit()
         if incompatible:
             self.noticeRequested.emit(
                 f"Base changed. {len(incompatible)} incompatible affix(es) were kept. Review them before saving.",
@@ -480,6 +485,7 @@ class ItemEditorViewModel(QObject):
         if count:
             self.affixesChanged.emit()
             self.stateChanged.emit()
+            self.equipmentChanged.emit()
             self.noticeRequested.emit(f"Removed {count} incompatible affix(es).", "success")
 
     def item_replaced(self) -> None:
@@ -489,3 +495,4 @@ class ItemEditorViewModel(QObject):
         self._base_search_query = ""
         self.stateChanged.emit()
         self.affixesChanged.emit()
+        self.equipmentChanged.emit()

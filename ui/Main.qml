@@ -15,6 +15,7 @@ ApplicationWindow {
     color: Theme.background
     property var appController: controller
     property bool closeApproved: false
+    property bool craftingMode: false
 
     background: Rectangle {
         color: Theme.background
@@ -50,6 +51,24 @@ ApplicationWindow {
             }
 
             Rectangle { Layout.fillWidth: true; color: "transparent" }
+
+            RowLayout {
+                spacing: 2
+                Rectangle {
+                    width: 73; height: 34; radius: 5
+                    color: !mainWindow.craftingMode ? "#263E49" : "#14232E"
+                    border.color: !mainWindow.craftingMode ? Theme.accent : "#354B57"
+                    Text { anchors.centerIn: parent; text: "Edit"; color: "#DCE5E9"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                    MouseArea { anchors.fill: parent; onClicked: mainWindow.craftingMode = false }
+                }
+                Rectangle {
+                    width: 82; height: 34; radius: 5
+                    color: mainWindow.craftingMode ? "#263E49" : "#14232E"
+                    border.color: mainWindow.craftingMode ? Theme.accent : "#354B57"
+                    Text { anchors.centerIn: parent; text: "Craft"; color: "#DCE5E9"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                    MouseArea { anchors.fill: parent; onClicked: mainWindow.craftingMode = true }
+                }
+            }
 
             RowLayout {
                 spacing: 7
@@ -111,6 +130,8 @@ ApplicationWindow {
             Layout.alignment: Qt.AlignHCenter
             editor: mainWindow.appController.editor
             browser: mainWindow.appController.affixBrowser
+            crafting: mainWindow.appController.crafting
+            craftingMode: mainWindow.craftingMode
         }
 
         RowLayout {

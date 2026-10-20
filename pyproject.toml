@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torchlight-craft-planner"
-version = "0.2.1"
-description = "Offline Torchlight: Infinite equipment editor"
+version = "0.3.0"
+description = "Offline Torchlight: Infinite equipment editor with an experimental probabilistic crafting planner"
 requires-python = ">=3.12"
 dependencies = ["PySide6==6.12.0"]
 
@@ -28,6 +28,7 @@ files = [
     "main.py",
     "core/__init__.py",
     "core/catalog.py",
+    "core/crafting.py",
     "core/controller.py",
     "app/controller.py",
     "core/models/__init__.py",
@@ -41,9 +42,11 @@ files = [
     "app/viewmodels/__init__.py",
     "app/viewmodels/item_editor.py",
     "app/viewmodels/affix_browser.py",
+    "app/viewmodels/crafting.py",
     "app/viewmodels/library.py",
     "services/__init__.py",
     "services/affix_browser.py",
+    "services/crafting_service.py",
     "services/item_editor_service.py",
     "services/item_library_service.py",
     "services/item_repository.py",
@@ -51,6 +54,7 @@ files = [
     "ui/Main.qml",
     "ui/ItemEditor.qml",
     "ui/components/AffixSelector.qml",
+    "ui/components/CraftPanel.qml",
     "ui/components/AffixSlot.qml",
     "ui/components/BaseSelector.qml",
     "ui/components/ItemLibraryDialog.qml",

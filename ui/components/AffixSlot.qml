@@ -8,20 +8,37 @@ Item {
     required property var slot
     required property string group
     required property string selectedInstanceId
+    required property string selectedGroup
+    required property int selectedSlotIndex
     signal addRequested(string group, int index)
     signal editRequested(string instanceId)
-    implicitHeight: 68
+    implicitHeight: 66
     implicitWidth: 300
 
     Rectangle {
         anchors.fill: parent
         radius: Theme.radiusSmall
-        color: occupied ? (selected ? "#203A47" : Theme.surfaceRaised) : "#0C1B25"
-        border.color: occupied ? (selected ? Theme.accent : Theme.borderSoft) : "#38505B"
+        color: selected ? "#203A47" : occupied ? Theme.surfaceRaised : "#0C1B25"
+        border.color: selected ? Theme.accent : occupied ? Theme.borderSoft : "#38505B"
         border.width: selected ? 1.5 : 1
 
         readonly property bool occupied: root.slot.kind === "affix"
-        readonly property bool selected: occupied && root.slot.affix.id === root.selectedInstanceId
+        readonly property bool selected: occupied
+            ? root.slot.affix.id === root.selectedInstanceId
+            : root.group === root.selectedGroup && root.slot.index === root.selectedSlotIndex
+
+        Rectangle {
+            visible: parent.occupied
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: 1
+            anchors.topMargin: 6
+            anchors.bottomMargin: 6
+            width: 2
+            radius: 1
+            color: Theme.tierBorder(root.slot.affix.tierLabel)
+        }
 
         RowLayout {
             anchors.fill: parent
@@ -40,7 +57,6 @@ Item {
             TierBadge {
                 visible: parent.parent.occupied
                 tier: root.slot.affix.tierAmbiguous ? "T?" : root.slot.affix.tierLabel || "T?"
-                category: root.slot.affix.category || "Basic"
             }
 
             ColumnLayout {
@@ -48,7 +64,9 @@ Item {
                 spacing: 3
                 Text {
                     Layout.fillWidth: true
-                    text: parent.parent.parent.occupied ? root.slot.affix.name : "Empty " + root.group + " slot"
+                    text: parent.parent.parent.occupied
+                          ? (root.slot.affix.tierRange || root.slot.affix.value || root.slot.affix.name)
+                          : "Empty " + root.group + " slot"
                     color: parent.parent.parent.occupied ? Theme.text : Theme.textSecondary
                     font.pixelSize: Theme.bodySize
                     font.weight: parent.parent.parent.occupied ? Font.Medium : Font.DemiBold
@@ -58,8 +76,11 @@ Item {
                 }
                 Text {
                     visible: parent.parent.parent.occupied
+                             && root.slot.affix.value.length > 0
+                             && root.slot.affix.tierRange.length > 0
+                             && root.slot.affix.value !== root.slot.affix.tierRange
                     Layout.fillWidth: true
-                    text: root.slot.affix.value || root.slot.affix.tierRange || ""
+                    text: "Current value: " + root.slot.affix.value
                     color: Theme.textSecondary
                     font.pixelSize: Theme.secondarySize
                     wrapMode: Text.WordWrap
@@ -74,12 +95,22 @@ Item {
                 }
             }
 
-            Text {
-                visible: parent.parent.occupied && parent.parent.selected
-                text: "EDITING"
-                color: Theme.accent
-                font.pixelSize: 9
-                font.weight: Font.Bold
+            Rectangle {
+                visible: parent.parent.occupied
+                width: 19
+                height: 19
+                radius: 10
+                color: "#101B24"
+                border.color: parent.parent.selected ? "#48B9FF" : "#40515B"
+                border.width: parent.parent.selected ? 2 : 1
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 9
+                    height: 9
+                    radius: 5
+                    color: "#48B9FF"
+                    visible: parent.parent.parent.selected
+                }
             }
         }
 
@@ -91,6 +122,12 @@ Item {
                 else root.addRequested(root.group, root.slot.index)
             }
         }
+
+        Accessible.role: occupied ? Accessible.RadioButton : Accessible.Button
+        Accessible.name: occupied
+            ? root.group + " slot " + (root.slot.index + 1) + ": " + root.slot.affix.name
+            : "Add " + root.group + " in slot " + (root.slot.index + 1)
+        Accessible.checked: selected
 
         HoverHandler { id: slotHover }
         ToolTip.visible: slotHover.hovered && root.slot.kind === "affix" && root.slot.affix.tierAmbiguous

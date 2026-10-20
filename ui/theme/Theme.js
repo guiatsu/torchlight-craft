@@ -20,6 +20,25 @@ var success = "#82C8B4"
 var basic = "#D5AA56"
 var advanced = "#BE91DE"
 var ultimate = "#A7B7E7"
+
+function tierBackground(tier) {
+    if (tier === "T1") return "#382A23"
+    if (tier === "T2") return "#30213A"
+    return "#25343C"
+}
+
+function tierBorder(tier) {
+    if (tier === "T1") return "#B97938"
+    if (tier === "T2") return "#9655B7"
+    return "#60727C"
+}
+
+function tierText(tier) {
+    if (tier === "T1") return "#F18A69"
+    if (tier === "T2") return "#D6A0EE"
+    return "#BDCAD0"
+}
+
 var radiusSmall = 4
 var radiusMedium = 7
 var radiusLarge = 10

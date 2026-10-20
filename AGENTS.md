@@ -6,8 +6,8 @@
 
 - Projeto: **Torchlight Craft Planner**, aplicativo desktop Windows para edição de equipamentos de Torchlight: Infinite.
 - Stack: **Python 3.12+, PySide6, Qt Quick/QML, dataclasses, catálogo local SQLite e biblioteca JSON local**. Build Windows com `pyside6-deploy`/Nuitka.
-- **Marco atual: v0.2.1 — importação exaustiva com identidade semântica de famílias e tiers, seleção assistida de bases e auditoria do catálogo TLIDB.** Não adicionar crafting aleatório, probabilidade, custos, otimização, OCR, integração com o jogo ou atualização remota automática.
-- A tela de crafting do jogo é referência de **composição e fluxo visual**, não apenas de paleta. O app continua sendo um *editor*, não uma réplica funcional do crafting nesta versão.
+- **Marco atual: v0.3.0 — editor offline mais um motor experimental, de uma tentativa, para crafting convencional.** O modelo ponderado TLIDB exige opt-in e nunca deve ser descrito como chance oficial. Não adicionar custos, loops automáticos, OCR, integração com o processo do jogo ou atualização remota automática.
+- A tela de crafting do jogo é referência de composição e fluxo visual. O app mantém Edit Mode e Craft Mode na mesma sessão de equipamento.
 - A captura do catálogo de 2026-10-19 contém 49 categorias, 2.194 bases, 2.233 famílias semânticas de afixos, 13.303 tiers e 831 registros de outras tabelas. O v0.2.1 dividiu 382 chaves amplas de família; cada tier original continua presente e as chaves antigas são preservadas como aliases. Os dados comunitários **não estão confirmados para SS14**. A auditoria está parcial; nunca apresente regras estimadas como oficiais.
 
 ## Estado do repositório na criação deste arquivo (2026-10-19)
@@ -20,7 +20,7 @@
 - O CI Windows já compilou com Nuitka, mas a execução empacotada falhou no smoke test (`--smoke-test`). **Não remover nem ignorar essa verificação para obter CI verde.**
 - Consulte sempre a branch/commit atual; estes fatos são um diagnóstico inicial, não substituem reavaliação.
 
-## Atualização da implementação v0.2.1
+## Atualização da implementação v0.2.1 e v0.3.0
 
 - A composição Qt está em `app/controller.py`; `core/controller.py` permanece apenas como import de compatibilidade.
 - `app/viewmodels/` contém os view-models do equipamento, navegação de afixos e biblioteca. Eles compartilham um único `ItemEditorService` e uma única sessão mutável.
@@ -32,6 +32,12 @@
 - A validação offscreen confirma inicialização QML, mas não substitui revisão visual no Windows.
 - `data/catalog.sqlite3` é o catálogo local normalizado (schema v3), com `tier_record_id`, rótulo visual separado, assinatura semântica e referência da antiga chave ampla; a biblioteca de equipamentos do usuário continua em JSON `schema_version=1`. O app não consulta a rede na inicialização.
 - Sugestões de base usam apenas `minimum_item_level` verificado; requisito de nível do personagem é exibido separadamente. Mudanças de nível e filtros nunca trocam a base nem removem afixos.
+- `core/crafting.py` é o motor puro de uma tentativa, com ações/resultados imutáveis, IDs exatos de pool, assinaturas semânticas, pesos inteiros, probabilidades `Fraction` e randomizador seedável. O modelo executável é `Experimental — TLIDB Weighted`, opt-in; não há modelo `verified` de odds.
+- `services/crafting_service.py` mantém cache de pools limitado; `app/viewmodels/crafting.py` prepara dados para a interface. Craft e edição manual compartilham `ItemEditorService` e o mesmo equipamento ativo.
+- Craft altera a sessão corrente e preserva a baseline de salvar. Undo é memória de sessão e limpa após edição manual ou troca de equipamento. A biblioteca de item continua em `schema_version=1`, sem dados do motor ou histórico.
+- Adições só usam slots vazios com limite listado. Limites ausentes bloqueiam adição; o limite da Cane derivado da screenshot permanece identificado como `visual_example_only`. Substituição só pode afetar o grupo e índice escolhidos.
+- TLIDB weights nunca são apresentados como odds oficiais. Linhas zero são visíveis e não sorteáveis; tiers acima do Item Level são excluídos; peso inválido ou total zero bloqueia a tentativa. Valor numérico dentro da faixa e custos não são simulados.
+- A regra de bloquear famílias existentes e a política experimental sobre a família do alvo substituído estão descritas com status e fontes em `docs/crafting-rules.md`. Não promover essas hipóteses a regra oficial sem evidência.
 - A versão exibida e a compilada é lida de `pyproject.toml`; inclua esse arquivo como dado ao gerar o executável Windows.
 - `tools/tlidb/` descobre categorias dinamicamente, respeita `robots.txt`, usa cache com hash e requisições serializadas, importa offline, valida e compara snapshots. Não mova o importador para o caminho de inicialização do aplicativo.
 - Os relatórios em `reports/` registram descoberta, retenção, erros, campos ausentes e validação. A captura atual reteve 100% dos registros encontrados, mas 1.219 classificações e 50 campos continuam sem confirmação suficiente; status geral `partial` é intencional.
@@ -47,7 +53,7 @@
 5. **Controllers não viram arquivos-depósito.** Não acrescentar novas funcionalidades ao controller monolítico; extrair por responsabilidades e manter apenas a ponte de apresentação necessária.
 6. **Sem arquitetura excessiva.** Não introduzir DI frameworks, mediators, microserviços, backend web, banco remoto ou abstrações genéricas sem uso real.
 7. **Compatibilidade de dados primeiro.** Preservar itens salvos, IDs existentes, comportamento de backups e esquema v1; qualquer migração futura precisa ser explícita, testada e recuperável.
-8. **Dados auditáveis.** Todo dado de jogo não óbvio deve possuir origem, hash/ref de origem quando disponível e status de verificação. Preservar pesos exatos, inclusive zero; não transformá-los em probabilidades nem fabricar pesos, tiers, conflitos, requisitos ou limites de slots.
+8. **Dados auditáveis.** Todo dado de jogo não óbvio deve possuir origem, hash/ref de origem quando disponível e status de verificação. Preservar pesos exatos, inclusive zero. Só converter pesos em probabilidades no modelo experimental explícito; nunca apresentá-las como odds oficiais nem fabricar pesos, tiers, conflitos, requisitos ou limites de slots.
 9. **Importação exaustiva e retenção.** Comparar páginas descobertas com inventário de controle, nunca omitir categorias/tabelas silenciosamente e manter registros desconhecidos em relatórios ou armazenamento bruto. Retenção de registro não equivale a cobertura de regras.
 10. **Sem assets não autorizados.** Usar os vetores originais do projeto ou assets com licença adequada; a imagem do jogo serve como referência visual.
 11. **Não mascarar falhas.** Não suprimir exceções, testes, warnings do QML, erros de build nem marcar tarefas como verificadas sem execução real.
@@ -116,17 +122,17 @@ A referência principal é a **screenshot de crafting do Torchlight: Infinite fo
 - Avisos de 'dados não confirmados' devem ser visíveis e acessíveis, mas não repetidos em cada região principal; fonte detalhada em tooltip/painel secundário.
 - Estilização centralizada: não repetir dezenas de cores hexadecimais, margens e tamanhos sem motivo em cada QML.
 - Manter os fluxos v0.1: novo, editar, adicionar, substituir, remover, salvar, carregar, renomear, duplicar, excluir e confirmar alterações não salvas.
-- **Sem botão 'Craft', custos, sorteios ou simulações nesta versão.**
+- Craft Mode exige opt-in visível para o modelo TLIDB ponderado experimental. Uma ação executa uma tentativa; não implementar auto-craft, lotes automáticos ou probabilidade oficial não confirmada.
 
 ## Ordem recomendada de intervenção
 
-1. Ler `README.md`, `PRODUCT.md`, catálogo, modelos, controlador, QML e testes; registrar diagnóstico breve e status de CI.
-2. Criar testes de caracterização para os fluxos existentes, especialmente mudança de base, seleção/edição de afixo, validação e descarte de alterações.
-3. Separar `core/models.py` por responsabilidade com compatibilidade de imports e round-trip da serialização v1.
-4. Extrair do `core/controller.py` primeiro operações puras, depois operações de biblioteca/catálogo; manter uma fachada Qt fina enquanto QML migra gradualmente.
-5. Dividir componentes QML e extrair tokens de tema; refinar o layout seguindo a screenshot e conferir em execução real.
-6. Diagnosticar e corrigir o empacotamento/smoke Windows; incluir saída diagnóstica no CI, sem remover o teste. O build atual inclui dados desnecessários: limitar inclusões a QML/assets/catálogo requeridos.
-7. Atualizar testes, documentação e comandos de build; entregar relatório honesto do que foi e não foi validado.
+1. Ler `README.md`, `PRODUCT.md`, regras de crafting, catálogo, modelos, controladores, QML e testes.
+2. Preservar IDs/aliases e JSON v1; mudanças no catálogo devem manter pools exatos e assinaturas semânticas distintas.
+3. Implementar regras de crafting no domínio Python puro; documentar cada regra como `verified`, `source_derived`, `experimental` ou `unknown` antes de expô-la como comportamento.
+4. Conectar o motor ao mesmo serviço de sessão usado pelo editor; limpar undo após mutação manual ou troca de item.
+5. Atualizar componentes QML e conferir layout, opt-in, indisponibilidade e probabilidades sem lógica de domínio no QML.
+6. Executar testes Python e smoke QML; diagnosticar build Windows sem remover verificações e relatar se o executável foi ou não validado.
+7. Atualizar instruções e entregar um relatório honesto de evidências, limites e artefatos.
 
 **Não realizar uma migração massiva e a reformulação visual na mesma alteração indivisível.** Faça checkpoints verificáveis e pequenos commits quando o fluxo de trabalho permitir.
 
@@ -153,6 +159,7 @@ Linux/WSL com ambiente virtual já criado:
 ```bash
 .venv/bin/python -m pytest
 QT_QPA_PLATFORM=offscreen .venv/bin/python main.py --smoke-test
+QT_QPA_PLATFORM=offscreen .venv/bin/python main.py --smoke-test-craft
 ```
 
 Não presumir que o smoke `offscreen` substitua revisão visual num Windows real. Antes de instalar dependências ou elevar privilégios, inspecionar o ambiente e pedir autorização. As bibliotecas devem vir de fontes oficiais, sem scripts remotos encadeados ou desabilitação de proteções.
@@ -161,7 +168,9 @@ CI: testes Python + inicialização QML + build Nuitka + smoke do executável em
 
 ## Definição de concluído
 
-- Projeto abre e edita itens sem regressão.
+- Projeto abre e edita itens sem regressão; Edit Mode e Craft Mode compartilham a sessão.
+- Craft válido executa uma tentativa do pool escolhido e Craft inválido não muta o item.
+- Odds do modelo permanecem opt-in/experimentais e desconhecidos não viram probabilidades fictícias.
 - Fluxos existentes funcionam e persistência v1 é preservada.
 - Controller e modelos estão separados por responsabilidade, com dependências dirigidas para o domínio.
 - Interface se aproxima **estruturalmente** da screenshot e apresenta slots individuais, hierarquia clara e controles contextuais.
@@ -171,9 +180,9 @@ CI: testes Python + inicialização QML + build Nuitka + smoke do executável em
 
 ## Condutas proibidas
 
-- Manter o escopo atual focado em edição e catálogo offline; não acrescentar crafting, simulação ou atualização automática remota.
+- Manter o escopo em edição, catálogo offline e crafting convencional experimental de uma tentativa; não acrescentar atualização remota automática.
 - Não trocar PySide6/QML por outra stack sem decisão explícita.
 - Não apagar dados locais, zerar bibliotecas, alterar esquema v1 silenciosamente ou forçar exclusão de afixos existentes.
-- Não inventar dados do jogo, probabilidades ou licenças de assets.
+- Não inventar dados do jogo, pesos, odds oficiais ou licenças de assets. O único modelo de probabilidade permitido é o experimental descrito em `docs/crafting-rules.md`.
 - Não adicionar bibliotecas de UI concorrentes, serviços online ou infraestrutura não necessária.
 - Não ocultar falhas no CI ou remover testes para passar o build.
